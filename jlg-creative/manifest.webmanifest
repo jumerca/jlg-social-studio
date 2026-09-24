@@ -1,32 +1,58 @@
 {
-  "id": "/jlg-social-studio/jlg-creative/",
+  "id": "./",
   "name": "JLG Creative",
   "short_name": "JLG Creative",
-  "description": "Communication, design & digital — demandes de projet, devis et suivi client.",
-  "start_url": "/jlg-social-studio/jlg-creative/",
-  "scope": "/jlg-social-studio/jlg-creative/",
+  "description": "Communication, design et digital — packs, demandes de projets et suivi client.",
+  "lang": "fr-FR",
+  "dir": "ltr",
+  "start_url": "./?source=pwa",
+  "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
   "background_color": "#f8f4ec",
-  "theme_color": "#0d1b2a",
-  "orientation": "portrait-primary",
+  "theme_color": "#081a2a",
+  "categories": [
+    "business",
+    "design",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "https://wxurfggrvyggqexvjpqi.supabase.co/functions/v1/jlg-creative?asset=icon-192",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Voir les offres",
+      "short_name": "Offres",
+      "url": "./#packs",
+      "icons": [
+        {
+          "src": "./assets/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
     },
     {
-      "src": "https://wxurfggrvyggqexvjpqi.supabase.co/functions/v1/jlg-creative?asset=icon-512",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "https://wxurfggrvyggqexvjpqi.supabase.co/functions/v1/jlg-creative?asset=icon-512",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "name": "Projet sur mesure",
+      "short_name": "Sur mesure",
+      "url": "./#custom",
+      "icons": [
+        {
+          "src": "./assets/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
     }
   ]
 }
