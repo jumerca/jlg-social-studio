@@ -1,40 +1,32 @@
 {
-  "id": "./",
+  "id": "/jlg-social-studio/jlg-creative/",
   "name": "JLG Creative",
   "short_name": "JLG Creative",
-  "description": "Communication, design et digital — packs, demandes de projets et suivi client.",
-  "lang": "fr-FR",
-  "start_url": "./",
-  "scope": "./",
+  "description": "Communication, design & digital — demandes de projet, devis et suivi client.",
+  "start_url": "/jlg-social-studio/jlg-creative/",
+  "scope": "/jlg-social-studio/jlg-creative/",
   "display": "standalone",
-  "background_color": "#f6f2e9",
+  "background_color": "#f8f4ec",
   "theme_color": "#0d1b2a",
-  "categories": [
-    "business",
-    "productivity",
-    "design"
-  ],
-  "prefer_related_applications": false,
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "./assets/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Voir les offres",
-      "url": "./#packs"
+      "src": "https://wxurfggrvyggqexvjpqi.supabase.co/functions/v1/jlg-creative?asset=icon-192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "name": "Projet sur mesure",
-      "url": "./#custom"
+      "src": "https://wxurfggrvyggqexvjpqi.supabase.co/functions/v1/jlg-creative?asset=icon-512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "name": "JLG Studio",
-      "url": "./studio.html"
+      "src": "https://wxurfggrvyggqexvjpqi.supabase.co/functions/v1/jlg-creative?asset=icon-512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

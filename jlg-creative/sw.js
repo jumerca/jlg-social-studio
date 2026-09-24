@@ -1,5 +1,5 @@
-const V='jlg-creative-pages-v1',C=V+'-cache';
-const STATIC=['./','./index.html','./studio.html','./client.html','./legal.html','./offline.html','./manifest.webmanifest','./assets/styles.css','./assets/public.js','./assets/studio.js','./assets/client.js','./assets/pwa.js','./assets/logo.svg','./assets/icon.svg'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>Promise.all(STATIC.map(u=>c.add(u).catch(()=>null)))).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new URL(e.request.url);if(u.origin!==location.origin)return;if(e.request.mode==='navigate'){e.respondWith(fetch(e.request).then(r=>{if(r.ok)caches.open(C).then(c=>c.put(e.request,r.clone()));return r}).catch(()=>caches.match(e.request).then(x=>x||caches.match('./offline.html'))));return}e.respondWith(caches.match(e.request).then(x=>x||fetch(e.request)))});
+const CACHE='jlg-creative-pages-v1';
+const CORE=['./','./index.html','./manifest.webmanifest'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).catch(()=>{}));self.skipWaiting()});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('jlg-creative-pages-')&&k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;const u=new URL(e.request.url);if(u.origin!==self.location.origin)return;e.respondWith(fetch(e.request).then(r=>{const cp=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return r}).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))))});
