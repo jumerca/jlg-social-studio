@@ -1,0 +1,40 @@
+{
+  "id": "./",
+  "name": "JLG Creative",
+  "short_name": "JLG Creative",
+  "description": "Communication, design et digital — packs, demandes de projets et suivi client.",
+  "lang": "fr-FR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f2e9",
+  "theme_color": "#0d1b2a",
+  "categories": [
+    "business",
+    "productivity",
+    "design"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Voir les offres",
+      "url": "./#packs"
+    },
+    {
+      "name": "Projet sur mesure",
+      "url": "./#custom"
+    },
+    {
+      "name": "JLG Studio",
+      "url": "./studio.html"
+    }
+  ]
+}
