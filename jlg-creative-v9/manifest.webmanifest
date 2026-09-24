@@ -1,0 +1,26 @@
+{
+  "id": "./?source=pwa",
+  "name": "JLG Creative",
+  "short_name": "JLG Creative",
+  "description": "Communication, design et digital — packs, demandes de projets et suivi client.",
+  "lang": "fr-FR",
+  "dir": "ltr",
+  "start_url": "./?page=home&source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone","minimal-ui"],
+  "orientation": "any",
+  "background_color": "#f6f2e9",
+  "theme_color": "#0d1b2a",
+  "categories": ["business","productivity","design"],
+  "prefer_related_applications": false,
+  "icons": [
+    {"src":"./?asset=icon-192","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"./?asset=icon-512","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ],
+  "shortcuts": [
+    {"name":"Voir les offres","short_name":"Offres","url":"./?page=home#packs","icons":[{"src":"./?asset=icon-192","sizes":"192x192"}]},
+    {"name":"Projet sur mesure","short_name":"Sur mesure","url":"./?page=home#custom","icons":[{"src":"./?asset=icon-192","sizes":"192x192"}]},
+    {"name":"JLG Studio","short_name":"Studio","url":"./?page=studio","icons":[{"src":"./?asset=icon-192","sizes":"192x192"}]}
+  ]
+}
