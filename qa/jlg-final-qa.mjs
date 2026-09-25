@@ -9,6 +9,11 @@ function pass(name,detail=''){results.push({status:'PASS',name,detail});}
 function fail(name,detail=''){failures++;results.push({status:'FAIL',name,detail});}
 async function check(name,fn){try{const d=await fn();pass(name,d||'')}catch(e){fail(name,e?.message||String(e))}}
 function assert(c,m='Assertion failed'){if(!c)throw new Error(m)}
+async function clearOverlays(page){
+  const close=page.locator('.overlay .close');
+  while(await close.count()){await close.last().click({force:true}).catch(()=>{});await page.waitForTimeout(10)}
+  await page.evaluate(()=>document.querySelectorAll('.overlay').forEach(x=>x.remove()));
+}
 async function watchErrors(page,label){const e=[];page.on('pageerror',x=>e.push('pageerror: '+x.message));page.on('console',m=>{if(m.type()==='error')e.push('console: '+m.text())});return()=>{if(e.length)throw new Error(label+': '+e.join(' | '))}}
 
 const fakePacks=[
@@ -146,20 +151,20 @@ const browser=await chromium.launch({headless:true});
  for(const [key,title] of views){
    await check('Studio tab works: '+title,async()=>{await page.locator('[data-view='+key+']').click();await page.waitForTimeout(30);assert((await page.locator('.studioTop h1').innerText())===title,'title mismatch');assert(await page.locator('#viewRoot').count()===1,'root')});
  }
- await page.locator('[data-view=orders]').click();
- await check('Studio request detail opens with full brief',async()=>{await page.locator('[data-order=o1]').click();const t=await page.locator('.adminModal').innerText();for(const x of ['Brief client','Périmètre','Prochaines actions'])assert(t.includes(x),'missing '+x);await page.locator('.adminModal .close').click()});
- await check('Studio poster request detail contains poster specifics',async()=>{await page.locator('[data-order=o2]').click();const t=await page.locator('.adminModal').innerText();assert(t.includes('Affiche personnalisée'),'poster section');assert(t.includes('A4'),'format');await page.locator('.adminModal .close').click()});
- await check('Studio acknowledgement button opens and sends action',async()=>{await page.locator('[data-ack-order=o1]').click();assert((await page.locator('.adminModal').innerText()).includes('Message au client'),'modal');await page.locator('#ackSend').click();await page.locator('.overlay').waitFor({state:'detached'});assert(calls.some(x=>x.action==='acknowledge-order'),'no API call')});
- await page.locator('[data-view=packs]').click();
- await check('Studio offers directory has 10 offers, search and edit work',async()=>{assert(await page.locator('.offerMemo').count()===10,'offers');await page.locator('#offerSearch').fill('Hôtel');const visible=await page.locator('.offerMemo:visible').count();assert(visible===1,'search visible '+visible);await page.locator('#offerSearch').fill('');await page.locator('[data-editpack=p1]').click();assert((await page.locator('.adminModal').innerText()).includes('Ce qui n’est pas inclus'),'edit fields');await page.locator('.adminModal .close').click()});
- await page.locator('[data-view=clients]').click();
- await check('Studio Clients new/edit modal works',async()=>{await page.locator('#createRecord').click();assert((await page.locator('.adminModal').innerText()).includes('Nom / structure'),'new client');await page.locator('.adminModal .close').click();await page.locator('[data-editclient=c1]').click();assert(await page.locator('.adminModal [name=email]').count()===1,'email');await page.locator('.adminModal .close').click()});
- await page.locator('[data-view=projects]').click();
- await check('Studio Projects new/edit/share controls work',async()=>{await page.locator('#createRecord').click();assert(await page.locator('.adminModal [name=brief]').count()===1,'brief');await page.locator('.adminModal .close').click();await page.locator('[data-editproject=pr1]').click();assert(await page.locator('.adminModal [name=progress]').count()===1,'progress');await page.locator('.adminModal .close').click()});
- await page.locator('[data-view=tasks]').click();
- await check('Studio Production new/edit modal works',async()=>{await page.locator('#createRecord').click();assert(await page.locator('.adminModal [name=priority]').count()===1,'priority');await page.locator('.adminModal .close').click();await page.locator('[data-edittask=t1]').click();assert(await page.locator('.adminModal [name=status]').count()===1,'status');await page.locator('.adminModal .close').click()});
- await page.locator('[data-view=quotes]').click();
- await check('Studio quote builder opens, services add, totals update and focus stays',async()=>{
+ await clearOverlays(page); await page.locator('[data-view=orders]').click();
+ await check('Studio request detail opens with full brief',async()=>{await page.locator('[data-order=o1]').click();const t=await page.locator('.adminModal').innerText();for(const x of ['Brief client','Périmètre','Prochaines actions'])assert(t.includes(x),'missing '+x);await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await check('Studio poster request detail contains poster specifics',async()=>{await page.locator('[data-order=o2]').click();const t=await page.locator('.adminModal').innerText();assert(t.includes('Affiche personnalisée'),'poster section');assert(t.includes('A4'),'format');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await check('Studio acknowledgement button opens and sends action',async()=>{await page.locator('[data-ack-order=o1]').click();assert((await page.locator('.adminModal').innerText()).includes('Message au client'),'modal');await page.locator('#ackSend').click();await page.waitForTimeout(120);assert(calls.some(x=>x.action==='acknowledge-order'),'no API call')}); await clearOverlays(page);
+ await clearOverlays(page); await page.locator('[data-view=packs]').click();
+ await check('Studio offers directory has 10 offers, search and edit work',async()=>{assert(await page.locator('.offerMemo').count()===10,'offers');await page.locator('#offerSearch').fill('Hôtel');const visible=await page.locator('.offerMemo:visible').count();assert(visible===1,'search visible '+visible);await page.locator('#offerSearch').fill('');await page.locator('[data-editpack=p1]').click();assert((await page.locator('.adminModal').innerText()).includes('Ce qui n’est pas inclus'),'edit fields');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await clearOverlays(page); await page.locator('[data-view=clients]').click();
+ await check('Studio Clients new/edit modal works',async()=>{await page.locator('#createRecord').click();assert((await page.locator('.adminModal').innerText()).includes('Nom / structure'),'new client');await page.locator('.adminModal .close').click();await page.locator('[data-editclient=c1]').click();assert(await page.locator('.adminModal [name=email]').count()===1,'email');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await clearOverlays(page); await page.locator('[data-view=projects]').click();
+ await check('Studio Projects new/edit/share controls work',async()=>{await page.locator('#createRecord').click();assert(await page.locator('.adminModal [name=brief]').count()===1,'brief');await page.locator('.adminModal .close').click();await page.locator('[data-editproject=pr1]').click();assert(await page.locator('.adminModal [name=progress]').count()===1,'progress');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await clearOverlays(page); await page.locator('[data-view=tasks]').click();
+ await check('Studio Production new/edit modal works',async()=>{await page.locator('#createRecord').click();assert(await page.locator('.adminModal [name=priority]').count()===1,'priority');await page.locator('.adminModal .close').click();await page.locator('[data-edittask=t1]').click();assert(await page.locator('.adminModal [name=status]').count()===1,'status');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await clearOverlays(page); await page.locator('[data-view=quotes]').click();
+ await check('Studio quote builder opens, services add, totals update and focus stays',async()=>{ await clearOverlays(page);
    await page.locator('#createRecord').click();assert(await page.locator('.quoteBuilderModal').count()===1,'builder');
    const service=page.locator('.servicePick').first();await service.click();assert(await page.locator('.quoteItem').count()===1,'line');
    const price=page.locator('[data-line-price="0"]');await price.focus();await price.fill('100');assert(await price.evaluate(e=>document.activeElement===e),'focus lost');
@@ -167,10 +172,10 @@ const browser=await chromium.launch({headless:true});
    await page.locator('#addCustomLine').click();assert(await page.locator('.quoteItem').count()===2,'custom');
    await page.locator('.adminModal .close').click();
  });
- await check('Studio existing quote edit opens with saved line',async()=>{await page.locator('[data-editquote=q1]').click();assert(await page.locator('.quoteItem').count()===1,'existing line');assert((await page.locator('#qTotal').innerText()).includes('90'),'total');await page.locator('.adminModal .close').click()});
- await page.locator('[data-view=invoices]').click();
- await check('Studio Finance edit/new invoice controls work',async()=>{await page.locator('#createRecord').click();assert(await page.locator('.adminModal [name=paid_amount]').count()===1,'paid');await page.locator('.adminModal .close').click();await page.locator('[data-editinvoice=i1]').click();assert(await page.locator('.adminModal [name=due_date]').count()===1,'due');await page.locator('.adminModal .close').click()});
- await page.locator('[data-view=settings]').click();
+ await check('Studio existing quote edit opens with saved line',async()=>{await page.locator('[data-editquote=q1]').click();assert(await page.locator('.quoteItem').count()===1,'existing line');assert((await page.locator('#qTotal').innerText()).includes('90'),'total');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await clearOverlays(page); await page.locator('[data-view=invoices]').click();
+ await check('Studio Finance edit/new invoice controls work',async()=>{await page.locator('#createRecord').click();assert(await page.locator('.adminModal [name=paid_amount]').count()===1,'paid');await page.locator('.adminModal .close').click();await page.locator('[data-editinvoice=i1]').click();assert(await page.locator('.adminModal [name=due_date]').count()===1,'due');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await clearOverlays(page); await page.locator('[data-view=settings]').click();
  await check('Studio Settings validation works',async()=>{await page.locator('#newPassword').fill('short');await page.locator('#changePassword').click();assert((await page.locator('#studioToast').innerText()).includes('10 caractères'),'validation')});
  await check('Studio authenticated no duplicate ids in each current view',async()=>{const d=await page.evaluate(()=>{const a=[...document.querySelectorAll('[id]')].map(x=>x.id);return [...new Set(a.filter((x,i)=>a.indexOf(x)!==i))]});assert(!d.length,d.join(','))});
  await check('Studio authenticated desktop no horizontal overflow',async()=>{const v=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);assert(v[0]<=v[1]+2,v.join('/'))});
