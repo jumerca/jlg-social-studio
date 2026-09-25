@@ -358,3 +358,6 @@ input,textarea,select{font-size:14px!important;padding:12px 13px!important}
 .ackLabel{display:grid;gap:7px;font-size:12px;font-weight:850;color:#52636d}.ackLabel textarea{min-height:150px;font-size:13px;line-height:1.5}
 .posterRequestSection{border-color:#d9c795!important;background:#fffdf8!important}.posterRequestSection h3:after{content:" · demande affiche";font-family:Arial,sans-serif;font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#a2762e;margin-left:5px}
 @media(max-width:720px){.studioNotifToggle{min-width:38px;height:38px}.ackBtn{width:100%}}
+
+.offersIntro,.quoteIntro{align-items:center}
+@media(max-width:720px){.offersIntro,.quoteIntro{align-items:flex-start}}
