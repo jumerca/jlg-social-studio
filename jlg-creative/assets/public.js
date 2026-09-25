@@ -1,13 +1,23 @@
 const API='https://wxurfggrvyggqexvjpqi.supabase.co/functions/v1/jlg-api';
-const money=v=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Number(v||0));
+const money=v=>{const n=Number(v||0);return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',minimumFractionDigits:Number.isInteger(n)?0:2,maximumFractionDigits:2}).format(n)};
 const root=document.querySelector('#packsRoot'),featuredRoot=document.querySelector('#featuredRoot'),modal=document.querySelector('#modalRoot'),toast=document.querySelector('#toast');
 
 const CLIENT_REQUESTS_KEY='jlg_creative_requests_v2';
 const posterTypes=[
-  {key:'deco',label:'Ville / paysage / patrimoine / nature',price:29},
-  {key:'sport',label:'Sport / humour / événement',price:35},
-  {key:'pro',label:'Entreprise / activité / lieu',price:39},
-  {key:'series',label:'Série cohérente de 3 affiches',price:79}
+  {key:'ville',label:'Ville / voyage'},
+  {key:'paysage',label:'Paysage / nature'},
+  {key:'patrimoine',label:'Patrimoine / architecture'},
+  {key:'sport',label:'Sport'},
+  {key:'humour',label:'Humoristique'},
+  {key:'pro',label:'Entreprise / activité / lieu'},
+  {key:'event',label:'Événement / souvenir'},
+  {key:'autre',label:'Autre thème'}
+];
+const posterFormats=[
+  {key:'A5',label:'A5 · 14,8 × 21 cm',price:4.90},
+  {key:'A4',label:'A4 · 21 × 29,7 cm',price:6.90},
+  {key:'A3',label:'A3 · 29,7 × 42 cm',price:8.90},
+  {key:'50x70',label:'50 × 70 cm',price:11.90}
 ];
 const posterStyles=['Vintage minimaliste','Rétro touristique','Illustration moderne','Élégant / premium','Humoristique','Sport dynamique','Nature / paysage','Architecture / patrimoine','Pop / coloré','Épuré / contemporain','Autre — préciser'];
 function getTrackedRequests(){try{return JSON.parse(localStorage.getItem(CLIENT_REQUESTS_KEY)||'[]')}catch{return []}}
@@ -62,7 +72,7 @@ async function showClientNotifications(){
   const now=new Date().toISOString();setTrackedRequests(rows.map(r=>({...r,lastSeenAt:now,unseenCount:0})));updateClientNotifBadge(0);
 }
 
-const extras=[['print','Déclinaison imprimée supplémentaire',90],['social','Lot de 5 visuels réseaux supplémentaires',120],['document','Document ou support supplémentaire',140],['format','Déclinaison de format supplémentaire',60]];
+const extras=[['print','Déclinaison prête à imprimer supplémentaire',90],['social','Lot de 5 visuels réseaux supplémentaires',120],['document','Document ou support supplémentaire',140],['format','Déclinaison de format supplémentaire',60]];
 let packs=[];
 let featured=[];
 const findPack=id=>packs.find(x=>x.id===id);
@@ -95,21 +105,22 @@ function order(pack){let step=1,opts=[];const state={name:'',company:'',email:''
 
 function posterOrder(){
   let step=1;
-  const state={name:'',company:'',email:'',phone:'',city:'',contactPreference:'Email',type:'deco',subject:'',style:'Vintage minimaliste',otherStyle:'',format:'A3',orientation:'Portrait',title:'',subtitle:'',colors:'',elementsInclude:'',elementsAvoid:'',usage:'Décoration / souvenir',deadline:'',notes:'',website:''};
+  const state={name:'',company:'',email:'',phone:'',city:'',contactPreference:'Email',type:'ville',subject:'',style:'Vintage minimaliste',otherStyle:'',format:'A4',orientation:'Portrait',title:'',subtitle:'',colors:'',elementsInclude:'',elementsAvoid:'',usage:'Décoration / souvenir',deadline:'',notes:'',website:''};
   let dialog=null;
   const currentType=()=>posterTypes.find(x=>x.key===state.type)||posterTypes[0];
+  const currentFormat=()=>posterFormats.find(x=>x.key===state.format)||posterFormats[1];
   function capture(){dialog?.box.querySelectorAll('input,textarea,select').forEach(el=>{if(el.name)state[el.name]=el.value})}
   function draw(){
-    const type=currentType();
+    const type=currentType(),fmt=currentFormat();
     let body='';
     if(step===1)body=`<h3>Vos coordonnées</h3><p>Pour préparer la proposition et vous recontacter.</p><div class="formGrid"><label>Nom / prénom *<input name="name" required value="${esc(state.name)}"></label><label>Structure<input name="company" value="${esc(state.company)}"></label><label>E-mail *<input name="email" type="email" required value="${esc(state.email)}"></label><label>Téléphone<input name="phone" value="${esc(state.phone)}"></label><label>Ville<input name="city" value="${esc(state.city)}"></label><label class="hp">Site web<input name="website" tabindex="-1"></label><label>Contact préféré<select name="contactPreference"><option>Email</option><option ${state.contactPreference==='Téléphone'?'selected':''}>Téléphone</option></select></label></div>`;
     if(step===2)body=`<h3>Votre affiche</h3><p>Plus les indications sont précises, plus la première proposition sera proche de votre idée.</p><div class="formGrid posterFormGrid">
-      <label class="wide">Type d’affiche<select name="type">${posterTypes.map(x=>`<option value="${x.key}" ${state.type===x.key?'selected':''}>${x.label} — ${money(x.price)}</option>`).join('')}</select></label>
+      <label class="wide">Type d’affiche<select name="type">${posterTypes.map(x=>`<option value="${x.key}" ${state.type===x.key?'selected':''}>${x.label}</option>`).join('')}</select></label>
       <label class="wide">Ville, lieu, sport, thème ou sujet *<input name="subject" required value="${esc(state.subject)}" placeholder="Ex. Toulon, stade Mayol, rugby, bord de mer…"></label>
       <label>Style<select name="style">${posterStyles.map(x=>`<option ${state.style===x?'selected':''}>${x}</option>`).join('')}</select></label>
       <label class="${state.style==='Autre — préciser'?'':'posterOtherHidden'}">Autre style à préciser<input name="otherStyle" value="${esc(state.otherStyle)}" placeholder="Décrivez l’ambiance souhaitée"></label>
-      <label>Format<select name="format"><option ${state.format==='A4'?'selected':''}>A4</option><option ${state.format==='A3'?'selected':''}>A3</option><option ${state.format==='50 × 70 cm'?'selected':''}>50 × 70 cm</option><option ${state.format==='Format numérique libre'?'selected':''}>Format numérique libre</option></select></label>
-      <label>Orientation<select name="orientation"><option ${state.orientation==='Portrait'?'selected':''}>Portrait</option><option ${state.orientation==='Paysage'?'selected':''}>Paysage</option><option ${state.orientation==='Carré'?'selected':''}>Carré</option></select></label>
+      <label>Format<select name="format">${posterFormats.map(x=>`<option value="${x.key}" ${state.format===x.key?'selected':''}>${x.label} — ${money(x.price)}</option>`).join('')}</select></label>
+      <label>Orientation<select name="orientation"><option ${state.orientation==='Portrait'?'selected':''}>Portrait</option><option ${state.orientation==='Paysage'?'selected':''}>Paysage</option></select></label>
       <label class="wide">Titre à afficher<input name="title" value="${esc(state.title)}" placeholder="Ex. TOULON"></label>
       <label class="wide">Sous-titre / phrase<input name="subtitle" value="${esc(state.subtitle)}" placeholder="Facultatif"></label>
       <label class="wide">Couleurs souhaitées<input name="colors" value="${esc(state.colors)}" placeholder="Ex. bleu marine, rouge, tons pastel…"></label>
@@ -119,7 +130,7 @@ function posterOrder(){
       <label>Date souhaitée<input name="deadline" type="date" value="${esc(state.deadline)}"></label>
       <label class="wide">Autres précisions<textarea name="notes" rows="3">${esc(state.notes)}</textarea></label>
     </div>`;
-    if(step===3)body=`<h3>Récapitulatif</h3><div class="summary posterSummary"><div><small>Type</small><strong>${esc(type.label)}</strong></div><div><small>Sujet</small><strong>${esc(state.subject)}</strong></div><div><small>Style</small><strong>${esc(state.style==='Autre — préciser'?(state.otherStyle||'Autre'):state.style)}</strong></div><div><small>Format</small><strong>${esc(state.format)} · ${esc(state.orientation)}</strong></div><div><small>Tarif indicatif</small><strong>${money(type.price)}</strong></div><div><small>Livraison</small><strong>Fichier numérique HD · 1 série de corrections</strong></div></div><div class="info successInfo">Aucun paiement immédiat. JLG vérifie votre demande et vous confirme le projet avant création.</div>`;
+    if(step===3)body=`<h3>Récapitulatif</h3><div class="summary posterSummary"><div><small>Type</small><strong>${esc(type.label)}</strong></div><div><small>Sujet</small><strong>${esc(state.subject)}</strong></div><div><small>Style</small><strong>${esc(state.style==='Autre — préciser'?(state.otherStyle||'Autre'):state.style)}</strong></div><div><small>Format</small><strong>${esc(fmt.label)} · ${esc(state.orientation)}</strong></div><div><small>Tarif</small><strong>${money(fmt.price)}</strong></div><div><small>Livraison</small><strong>1 fichier numérique HD · 1 correction légère</strong></div></div><div class="info successInfo">Aucun paiement immédiat. JLG vérifie votre demande et vous confirme le projet avant création.</div>`;
     if(dialog)dialog.close();
     dialog=mountDialog(`<button class="close" aria-label="Fermer">×</button><div class="orderHead"><div><span class="pill">Affiche personnalisée</span><h2>Créer votre affiche</h2></div><div class="dots">${[1,2,3].map(n=>`<b class="${step>=n?'on':''}">${n}</b>`).join('')}</div></div><div class="orderBody">${body}</div><div class="orderNav">${step>1?'<button class="secondary" id="back">← Retour</button>':'<span></span>'}${step<3?'<button class="primary" id="next">Continuer →</button>':'<button class="primary" id="send">Envoyer ma demande</button>'}</div>`);
     dialog.box.classList.add('orderModal','posterOrderModal');
@@ -128,9 +139,9 @@ function posterOrder(){
     dialog.box.querySelector('#back')?.addEventListener('click',()=>{capture();step--;draw()});
     dialog.box.querySelector('#next')?.addEventListener('click',()=>{capture();if(step===1&&(!state.name.trim()||!validEmail(state.email)))return showToast('Nom et e-mail valide sont obligatoires.',true);if(step===2&&!state.subject.trim())return showToast('Précisez le sujet de l’affiche.',true);step++;draw()});
     dialog.box.querySelector('#send')?.addEventListener('click',async e=>{
-      capture();const btn=e.currentTarget;btn.disabled=true;btn.textContent='Envoi…';const t=currentType();
-      const posterDetails={type:t.label,subject:state.subject,style:state.style,otherStyle:state.otherStyle,format:state.format,orientation:state.orientation,title:state.title,subtitle:state.subtitle,colors:state.colors,elementsInclude:state.elementsInclude,elementsAvoid:state.elementsAvoid,usage:state.usage,signature:true};
-      const payload={packId:'',packName:'Affiche personnalisée — '+t.label,packPrice:t.price,estimate:t.price,name:state.name,company:state.company,email:state.email,phone:state.phone,city:state.city,contactPreference:state.contactPreference,objective:'Création d’une affiche personnalisée : '+state.subject,deadline:state.deadline,budget:money(t.price),style:state.style==='Autre — préciser'?state.otherStyle:state.style,notes:state.notes,requestedSupports:state.format+' · '+state.orientation,targetAudience:'',keyMessage:state.title,existingAssets:'',contentStatus:'',constraints:state.elementsAvoid,inspiration:'',website:state.website,options:[],posterDetails};
+      capture();const btn=e.currentTarget;btn.disabled=true;btn.textContent='Envoi…';const t=currentType(),f=currentFormat();
+      const posterDetails={type:t.label,subject:state.subject,style:state.style,otherStyle:state.otherStyle,format:f.label,orientation:state.orientation,title:state.title,subtitle:state.subtitle,colors:state.colors,elementsInclude:state.elementsInclude,elementsAvoid:state.elementsAvoid,usage:state.usage,signature:true};
+      const payload={packId:'',packName:'Affiche personnalisée · '+f.label+' · '+t.label,packPrice:f.price,estimate:f.price,name:state.name,company:state.company,email:state.email,phone:state.phone,city:state.city,contactPreference:state.contactPreference,objective:'Création d’une affiche personnalisée : '+state.subject,deadline:state.deadline,budget:money(f.price),style:state.style==='Autre — préciser'?state.otherStyle:state.style,notes:state.notes,requestedSupports:f.label+' · '+state.orientation,targetAudience:'',keyMessage:state.title,existingAssets:'',contentStatus:'',constraints:state.elementsAvoid,inspiration:'',website:state.website,options:[],posterDetails};
       try{
         const j=await fetchJSON(API+'?action=order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
         trackRequest(j,payload.packName);dialog.close();
@@ -142,9 +153,9 @@ function posterOrder(){
   draw();
 }
 
-document.addEventListener('click',e=>{const detailBtn=e.target.closest('[data-detail]'),orderBtn=e.target.closest('[data-order]'),custom=e.target.closest('[data-custom]'),poster=e.target.closest('[data-poster-order]');if(detailBtn){const p=findPack(detailBtn.dataset.detail);if(p)detail(p)}if(orderBtn){const p=findPack(orderBtn.dataset.order);if(p)order(p)}if(custom)order({id:'',name:'Projet sur mesure',category:'Sur mesure',description:'',price:0,delay:'À définir',deliverables:[]});if(poster)posterOrder()});
+document.addEventListener('click',e=>{const detailBtn=e.target.closest('[data-detail]'),orderBtn=e.target.closest('[data-order]'),custom=e.target.closest('[data-custom]'),poster=e.target.closest('[data-poster-order]');if(detailBtn){const p=findPack(detailBtn.dataset.detail);if(p)detail(p)}if(orderBtn){const p=findPack(orderBtn.dataset.order);if(p)order(p)}if(custom)order({id:'',name:'Création sur mesure',category:'Sur mesure',description:'Création ponctuelle livrée sous forme de fichiers ou supports prêts à utiliser.',price:0,delay:'À définir',deliverables:[]});if(poster)posterOrder()});
 const menuBtn=document.querySelector('#menuBtn'),nav=document.querySelector('#mainNav');menuBtn.onclick=()=>{const open=nav.classList.toggle('open');menuBtn.setAttribute('aria-expanded',String(open));menuBtn.textContent=open?'×':'☰'};nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');menuBtn.textContent='☰'}));
 const clientNotifBtn=document.querySelector('#clientNotifBtn');if(clientNotifBtn)clientNotifBtn.onclick=showClientNotifications;
 setTimeout(()=>checkClientUpdates(),800);setInterval(()=>{if(!document.hidden)checkClientUpdates()},60000);
-const shareSite=document.querySelector('#shareSite');if(shareSite)shareSite.onclick=async()=>{const payload={title:'JLG Creative',text:'Découvrez JLG Creative : communication, design, digital et demandes de projets en ligne.',url:new URL('./index.html',location.href).href};try{if(navigator.share)await navigator.share(payload);else{await navigator.clipboard.writeText(payload.url);showToast('Lien JLG Creative copié.')}}catch(e){if(e?.name!=='AbortError')showToast('Impossible de partager pour le moment.',true)}};
+const shareSite=document.querySelector('#shareSite');if(shareSite)shareSite.onclick=async()=>{const payload={title:'JLG Creative',text:'Découvrez JLG Creative : communication, design, supports professionnels et affiches personnalisées.',url:new URL('./index.html',location.href).href};try{if(navigator.share)await navigator.share(payload);else{await navigator.clipboard.writeText(payload.url);showToast('Lien JLG Creative copié.')}}catch(e){if(e?.name!=='AbortError')showToast('Impossible de partager pour le moment.',true)}};
 load();
