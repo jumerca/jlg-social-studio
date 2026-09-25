@@ -15,8 +15,8 @@ async function api(action,opts={}){const r=await fetch(`${API}?action=${encodeUR
 function logout(){token='';sessionStorage.removeItem('jlg_token');data=null;renderLogin()}
 function renderLogin(){root.innerHTML=`<div class="loginPage"><section class="loginCard"><div class="studioLoginBrand"><img src="./assets/brand-mark.png" alt=""><span class="studioBrandDivider"></span><span><strong>JLG</strong><small>STUDIO</small></span></div><p>ESPACE PRIVÉ</p><h1>Pilotage & production</h1><label>Mot de passe<input id="pwd" type="password" autocomplete="current-password" autofocus></label><button class="primary full" id="login">Se connecter</button><a href="../jlg-creative/">← Retour à JLG Creative</a><div id="loginErr" role="alert"></div></section></div>`;const go=async()=>{const password=document.querySelector('#pwd').value;const btn=document.querySelector('#login');btn.disabled=true;btn.textContent='Connexion…';try{const r=await fetch(API+'?action=login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});const j=await r.json().catch(()=>({}));if(!r.ok)throw Error(j.error||'Erreur');token=j.token;sessionStorage.setItem('jlg_token',token);await load();}catch(e){document.querySelector('#loginErr').textContent=e.message;btn.disabled=false;btn.textContent='Se connecter'}};document.querySelector('#login').onclick=go;document.querySelector('#pwd').onkeydown=e=>{if(e.key==='Enter')go()}}
 async function load(){data=await api('bootstrap');render()}
-const labels={dashboard:'Tableau de bord',orders:'Commandes & demandes',packs:'Packs',clients:'Clients',projects:'Projets',tasks:'Production',quotes:'Devis',invoices:'Finance',settings:'Réglages'};
-function nav(){return `<aside class="studioSide"><div class="studioBrand studioBrandV15"><img src="./assets/brand-mark.png" alt=""><div><strong>Studio</strong><span>JLG Creative</span></div></div><nav>${[['dashboard','Tableau de bord'],['orders','Commandes'],['packs','Packs'],['clients','Clients'],['projects','Projets'],['tasks','Production'],['quotes','Devis'],['invoices','Finance'],['settings','Réglages']].map(([k,l])=>`<button data-view="${k}" class="${view===k?'active':''}">${l}</button>`).join('')}</nav><div class="sideFooter"><a href="../jlg-creative/">Voir JLG Creative ↗</a><button id="logout" class="sideLogout">Déconnexion</button></div></aside>`}
+const labels={dashboard:'Tableau de bord',orders:'Commandes & demandes',packs:'Toutes mes offres',clients:'Clients',projects:'Projets',tasks:'Production',quotes:'Devis',invoices:'Finance',settings:'Réglages'};
+function nav(){return `<aside class="studioSide"><div class="studioBrand studioBrandV15"><img src="./assets/brand-mark.png" alt=""><div><strong>Studio</strong><span>JLG Creative</span></div></div><nav>${[['dashboard','Tableau de bord'],['orders','Commandes'],['packs','Toutes mes offres'],['clients','Clients'],['projects','Projets'],['tasks','Production'],['quotes','Devis'],['invoices','Finance'],['settings','Réglages']].map(([k,l])=>`<button data-view="${k}" class="${view===k?'active':''}">${l}</button>`).join('')}</nav><div class="sideFooter"><a href="../jlg-creative/">Voir JLG Creative ↗</a><button id="logout" class="sideLogout">Déconnexion</button></div></aside>`}
 function createButton(){if(['clients','projects','tasks','quotes','invoices','packs'].includes(view))return `<button class="primary" id="createRecord">+ Nouveau</button>`;return ''}
 function render(){root.innerHTML=`<div class="studioShell">${nav()}<main class="studioMain"><header class="studioTop"><div><p>JLG STUDIO</p><h1>${labels[view]}</h1></div><div class="studioTopActions">${createButton()}<button class="secondary" id="refresh">Actualiser</button></div></header><section id="viewRoot"></section></main></div>`;document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{view=b.dataset.view;render()});document.querySelector('#refresh').onclick=()=>load().catch(e=>toast(e.message,true));document.querySelector('#logout').onclick=logout;document.querySelector('#createRecord')?.addEventListener('click',()=>createForView());renderView()}
 function renderView(){const v=document.querySelector('#viewRoot');if(view==='dashboard')return renderDashboard(v);if(view==='orders')return renderOrders(v);if(view==='packs')return renderPacks(v);if(view==='clients')return renderClients(v);if(view==='projects')return renderProjects(v);if(view==='tasks')return renderTasks(v);if(view==='quotes')return renderQuotes(v);if(view==='invoices')return renderInvoices(v);if(view==='settings')return renderSettings(v)}
@@ -124,11 +124,49 @@ function orderDetail(o){
   if(btn)btn.onclick=async()=>{btn.disabled=true;try{await api('convert-order',{method:'POST',body:JSON.stringify({id:o.id})});ov.remove();toast('Client et projet créés avec le brief complet.');await load()}catch(e){toast(e.message,true);btn.disabled=false}};
 }
 function renderPacks(v){
-  const featured=(data.packs||[]).filter(p=>p.featured).length;
-  v.innerHTML=`<div class="studioIntro"><div><strong>Catalogue JLG</strong><p>Le catalogue public est synchronisé ici. Les offres phares apparaissent en premier côté client.</p></div><div class="requestIntroStats"><span><b>${data.packs.length}</b><small>offres</small></span><span><b>${featured}</b><small>phares</small></span></div></div>
-  <div class="adminPacks adminPacksV2">${data.packs.map(p=>`<article><div class="packTop"><span class="pill">${esc(p.category)}</span><span class="delay">${esc(p.delay)}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><div class="packMiniMeta"><span><small>Prix</small><strong>${money(p.price)}</strong></span><span><small>Livrables</small><strong>${(p.deliverables||[]).length}</strong></span><span><small>Statut</small><strong>${p.featured?'★ Phare':'Standard'}</strong></span></div><div class="packPreview">${(p.deliverables||[]).slice(0,3).map(x=>`<span>✓ ${esc(x)}</span>`).join('')}${(p.deliverables||[]).length>3?`<small>+${p.deliverables.length-3} autres éléments</small>`:''}</div><div class="cardActions"><button class="secondary" data-editpack="${p.id}">Modifier l’offre</button><button class="dangerBtn" data-deletepack="${p.id}">Supprimer</button></div></article>`).join('')}</div>`;
-  document.querySelectorAll('[data-editpack]').forEach(b=>b.onclick=()=>editPack(byId(data.packs,b.dataset.editpack)));
-  document.querySelectorAll('[data-deletepack]').forEach(b=>b.onclick=()=>deletePack(byId(data.packs,b.dataset.deletepack)));
+  const packs=data.packs||[], services=data.services||[];
+  const categories=[...new Set(packs.map(p=>p.category).filter(Boolean))];
+  const serviceCats=[...new Set(services.map(s=>s.category).filter(Boolean))];
+  v.innerHTML=`
+    <div class="studioIntro offersIntro">
+      <div><strong>Toutes mes offres</strong><p>Ton référentiel commercial : prix, délai, cible, livrables, déroulement, livraison et limites de chaque offre.</p></div>
+      <div class="requestIntroStats"><span><b>${packs.length}</b><small>offres</small></span><span><b>${services.length}</b><small>prestations devis</small></span></div>
+    </div>
+    <div class="offerTools">
+      <input id="offerSearch" type="search" placeholder="Rechercher une offre, un secteur, un livrable…">
+      <div class="offerFilters"><button class="active" data-offer-filter="">Toutes</button>${categories.map(c=>`<button data-offer-filter="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+    </div>
+    <div id="offerDirectory" class="offerDirectory">
+      ${packs.map(p=>`<details class="offerMemo" data-offer-text="${esc([p.name,p.category,p.description,p.ideal_for,(p.deliverables||[]).join(' ')].join(' ').toLowerCase())}" data-offer-category="${esc(p.category||'')}">
+        <summary>
+          <div><span class="pill">${esc(p.category||'Offre')}</span><strong>${esc(p.name)}</strong><small>${esc(p.description||'')}</small></div>
+          <div class="offerMemoMeta"><b>${money(p.price)}</b><span>${esc(p.delay||'À définir')}</span></div>
+        </summary>
+        <div class="offerMemoBody">
+          <section class="offerMemoBlock highlight"><h4>Pour qui ?</h4><p>${esc(p.ideal_for||'À préciser.')}</p></section>
+          <section class="offerMemoBlock"><h4>Ce qui est inclus</h4><div class="memoList">${(p.deliverables||[]).map(x=>`<span>✓ ${esc(x)}</span>`).join('')}</div></section>
+          <section class="offerMemoBlock"><h4>Ce que le client reçoit</h4><p>${esc(p.delivery_format||'À préciser.')}</p></section>
+          <section class="offerMemoBlock"><h4>Déroulement</h4><ol>${(p.process||[]).map(x=>`<li>${esc(x)}</li>`).join('')}</ol></section>
+          <section class="offerMemoBlock negative"><h4>Non inclus</h4><div class="memoList">${(p.not_included||[]).map(x=>`<span>× ${esc(x)}</span>`).join('')}</div></section>
+          <section class="offerMemoBlock"><h4>Corrections</h4><p>${esc(p.revisions||'À préciser.')}</p></section>
+          <div class="cardActions"><button class="secondary" data-editpack="${p.id}">Modifier l’offre</button></div>
+        </div>
+      </details>`).join('')}
+    </div>
+    <details class="serviceDirectory">
+      <summary><div><strong>Prestations unitaires utilisées dans les devis</strong><small>Ouvre pour retrouver rapidement les tarifs de base.</small></div><span>${services.length} lignes</span></summary>
+      <div class="serviceDirectoryBody">
+        ${serviceCats.map(cat=>`<section><h4>${esc(cat)}</h4>${services.filter(s=>s.category===cat).map(s=>`<div class="serviceMemo"><div><strong>${esc(s.name)}</strong><small>${esc(s.description||'')}</small></div><span>${money(s.price)} / ${esc(s.unit||'unité')}</span></div>`).join('')}</section>`).join('')}
+      </div>
+    </details>
+  `;
+  const cards=[...v.querySelectorAll('.offerMemo')];
+  const search=v.querySelector('#offerSearch');
+  let filter='';
+  const apply=()=>{const q=(search.value||'').trim().toLowerCase();cards.forEach(c=>{const okCat=!filter||c.dataset.offerCategory===filter;const okQ=!q||(c.dataset.offerText||'').includes(q);c.hidden=!(okCat&&okQ)})};
+  search.oninput=apply;
+  v.querySelectorAll('[data-offer-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.offerFilter||'';v.querySelectorAll('[data-offer-filter]').forEach(x=>x.classList.toggle('active',x===b));apply()});
+  v.querySelectorAll('[data-editpack]').forEach(b=>b.onclick=e=>{e.preventDefault();editPack(byId(data.packs,b.dataset.editpack))});
 }
 function editPack(p){
   const isNew=!p;
@@ -164,8 +202,117 @@ async function shareProject(id){try{const r=await api('share-project',{method:'P
 function editProject(p){const isNew=!p;const o=modal(isNew?'Nouveau projet':'Modifier le projet',`<div class="formGrid"><label class="wide">Nom du projet *<input name="name" value="${esc(p?.name||'')}"></label><label>Client<select name="client_id">${opts(data.clients,p?.client_id)}</select></label><label>Budget (€)<input name="budget" type="number" min="0" value="${Number(p?.budget||0)}"></label><label>Statut<select name="status">${['Brief','À produire','En cours','À valider','Corrections','Livré'].map(x=>`<option ${p?.status===x?'selected':''}>${x}</option>`).join('')}</select></label><label>Progression (%)<input name="progress" type="number" min="0" max="100" value="${Number(p?.progress||0)}"></label><label>Date limite<input name="deadline" type="date" value="${esc(p?.deadline||'')}"></label><label class="wide">Objectif<textarea name="objective" rows="4">${esc(p?.objective||'')}</textarea></label><label class="wide">Brief<textarea name="brief" rows="6">${esc(p?.brief||'')}</textarea></label></div>`,`<button class="primary" id="save">Enregistrer</button>`);o.querySelector('#save').onclick=()=>saveForm(o,'projects',p,['name','client_id','budget','status','progress','deadline','objective','brief'],['budget','progress'])}
 function renderTasks(v){const groups=['À faire','En cours','En validation','Terminé'];v.innerHTML=`<div class="taskBoard">${groups.map(g=>`<section><h3>${g}<span>${data.tasks.filter(t=>t.status===g).length}</span></h3><div>${data.tasks.filter(t=>t.status===g).map(t=>`<article class="taskCard"><span class="priority">${esc(t.priority)}</span><strong>${esc(t.title)}</strong><small>${esc(projectName(t.project_id))}</small><p>${esc(t.category)} · ${esc(t.due_label||'Sans échéance')}</p><div class="cardActions"><button class="secondary" data-edittask="${t.id}">Modifier</button><button class="dangerBtn" data-deletetask="${t.id}">Supprimer</button></div></article>`).join('')||'<p class="muted">Aucune tâche.</p>'}</div></section>`).join('')}</div>`;document.querySelectorAll('[data-edittask]').forEach(b=>b.onclick=()=>editTask(byId(data.tasks,b.dataset.edittask)));document.querySelectorAll('[data-deletetask]').forEach(b=>b.onclick=()=>removeRecord('tasks',byId(data.tasks,b.dataset.deletetask),'tâche'))}
 function editTask(t){const isNew=!t;const o=modal(isNew?'Nouvelle tâche':'Modifier la tâche',`<div class="formGrid"><label class="wide">Titre *<input name="title" value="${esc(t?.title||'')}"></label><label>Projet<select name="project_id">${opts(data.projects,t?.project_id)}</select></label><label>Statut<select name="status">${['À faire','En cours','En validation','Terminé'].map(x=>`<option ${t?.status===x?'selected':''}>${x}</option>`).join('')}</select></label><label>Priorité<select name="priority">${['Basse','Normale','Haute','Urgente'].map(x=>`<option ${t?.priority===x?'selected':''}>${x}</option>`).join('')}</select></label><label>Catégorie<input name="category" value="${esc(t?.category||'Admin')}"></label><label class="wide">Échéance / repère<input name="due_label" value="${esc(t?.due_label||'')}"></label></div>`,`<button class="primary" id="save">Enregistrer</button>`);o.querySelector('#save').onclick=()=>saveForm(o,'tasks',t,['title','project_id','status','priority','category','due_label'])}
-function renderQuotes(v){v.innerHTML=`<div class="simpleList richList">${data.quotes.length?data.quotes.map(q=>`<article><div><strong>${esc(q.reference)}</strong><small>${esc(clientName(q.client_id))}${q.project_id?' · '+esc(projectName(q.project_id)):''}</small></div><span class="status">${esc(q.status)}</span><span class="bigCell">${money(q.total)}</span><span>${q.client_decision_at?'Décision client reçue':'—'}</span><div class="listActions"><button class="secondary" data-editquote="${q.id}">Modifier</button><button class="primary mini" data-invoicequote="${q.id}">Facturer</button><button class="dangerBtn" data-deletequote="${q.id}">Supprimer</button></div></article>`).join(''):empty('Aucun devis.')}</div>`;document.querySelectorAll('[data-editquote]').forEach(b=>b.onclick=()=>editQuote(byId(data.quotes,b.dataset.editquote)));document.querySelectorAll('[data-invoicequote]').forEach(b=>b.onclick=()=>invoiceQuote(b.dataset.invoicequote));document.querySelectorAll('[data-deletequote]').forEach(b=>b.onclick=()=>removeRecord('quotes',byId(data.quotes,b.dataset.deletequote),'devis'))}
-function editQuote(q){const isNew=!q;const o=modal(isNew?'Nouveau devis':'Modifier le devis',`<div class="formGrid"><label>Référence<input name="reference" value="${esc(q?.reference||'DEV-'+today().slice(2).replaceAll('-','')+'-'+uid())}"></label><label>Statut<select name="status">${['Brouillon','Envoyé','Accepté','Refusé'].map(x=>`<option ${q?.status===x?'selected':''}>${x}</option>`).join('')}</select></label><label>Client<select name="client_id">${opts(data.clients,q?.client_id)}</select></label><label>Projet<select name="project_id">${opts(data.projects,q?.project_id)}</select></label><label class="wide">Total (€)<input name="total" type="number" min="0" step="0.01" value="${Number(q?.total||0)}"></label></div>`,`<button class="primary" id="save">Enregistrer</button>`);o.querySelector('#save').onclick=()=>saveForm(o,'quotes',q,['reference','status','client_id','project_id','total'],['total'])}
+
+function futureDate(days=30){const d=new Date();d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)}
+function normalizeQuoteItems(items=[]){return (items||[]).map((x,i)=>({id:x.id||('line-'+i+'-'+uid()),label:x.label||'',description:x.description||'',category:x.category||'',unit:x.unit||'unité',qty:Number(x.qty||1),unit_price:Number(x.unit_price??x.price??0),total:Number(x.total??(Number(x.qty||1)*Number(x.unit_price??x.price??0)))}))}
+function quoteNumbers(items,discountPercent=0,depositPercent=30){
+  items.forEach(x=>x.total=Math.max(0,Number(x.qty||0))*Math.max(0,Number(x.unit_price||0)));
+  const subtotal=items.reduce((s,x)=>s+Number(x.total||0),0);
+  const discount=Math.round((subtotal*Math.max(0,Math.min(100,Number(discountPercent||0)))/100)*100)/100;
+  const total=Math.max(0,subtotal-discount);
+  const deposit=Math.round((total*Math.max(0,Math.min(100,Number(depositPercent||0)))/100)*100)/100;
+  return {subtotal,discount,total,deposit};
+}
+function printQuote(q){
+  const client=byId(data.clients,q.client_id), project=byId(data.projects,q.project_id);
+  const items=normalizeQuoteItems(q.items);
+  const n=quoteNumbers(items,q.discount_percent,q.deposit_percent);
+  const rows=items.map(x=>`<tr><td><strong>${esc(x.label)}</strong><small>${esc(x.description||'')}</small></td><td>${esc(x.unit||'')}</td><td>${x.qty}</td><td>${money(x.unit_price)}</td><td>${money(x.total)}</td></tr>`).join('');
+  const w=window.open('','_blank','width=1000,height=850');if(!w)return toast('Autorisez les fenêtres pour afficher le devis.',true);
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(q.reference)}</title><style>body{font-family:Arial,sans-serif;color:#173042;max-width:900px;margin:32px auto;padding:0 22px}h1,h2{font-family:Georgia,serif}.head{display:flex;justify-content:space-between;gap:30px;border-bottom:3px solid #c79b45;padding-bottom:16px}.muted{color:#6d7b84;font-size:12px}.client{background:#f5f2eb;padding:14px;border-radius:12px;margin:20px 0}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:10px;border-bottom:1px solid #ddd;text-align:left;vertical-align:top}th{text-transform:uppercase;font-size:9px;color:#78858c}td small{display:block;color:#78858c;margin-top:3px}.totals{margin-left:auto;width:330px;margin-top:18px}.totals div{display:flex;justify-content:space-between;padding:6px}.totals .grand{font-size:19px;font-weight:bold;border-top:2px solid #173042}.note{margin-top:24px;padding:14px;background:#f7f5f0;border-radius:10px;white-space:pre-wrap;font-size:11px;line-height:1.5}@media print{body{margin:0}}</style></head><body>
+  <div class="head"><div><h1>JLG Creative</h1><div class="muted">Communication · Design · Supports professionnels</div></div><div><h2>Devis</h2><strong>${esc(q.reference)}</strong><div class="muted">Valable jusqu’au ${esc(q.valid_until||'—')}</div></div></div>
+  <div class="client"><strong>${esc(client?.name||'Client à préciser')}</strong><div>${esc(client?.email||'')} ${client?.phone?' · '+esc(client.phone):''}</div>${project?'<div>Projet : '+esc(project.name)+'</div>':''}</div>
+  <table><thead><tr><th>Prestation</th><th>Unité</th><th>Qté</th><th>Prix unit.</th><th>Total</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="totals"><div><span>Sous-total</span><strong>${money(n.subtotal)}</strong></div><div><span>Remise (${Number(q.discount_percent||0)}%)</span><strong>- ${money(n.discount)}</strong></div><div class="grand"><span>Total</span><strong>${money(n.total)}</strong></div><div><span>Acompte (${Number(q.deposit_percent||0)}%)</span><strong>${money(n.deposit)}</strong></div></div>
+  <div class="note">${esc(q.notes||'')}</div><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()
+}
+
+function renderQuotes(v){
+  const total=data.quotes.reduce((s,q)=>s+Number(q.total||0),0);
+  const drafts=data.quotes.filter(q=>q.status==='Brouillon').length;
+  v.innerHTML=`<div class="studioIntro quoteIntro"><div><strong>Devis détaillés</strong><p>Sélectionne tes prestations, ajuste quantité et prix, puis génère un devis lisible et précis.</p></div><div class="requestIntroStats"><span><b>${data.quotes.length}</b><small>devis</small></span><span><b>${drafts}</b><small>brouillons</small></span></div></div>
+  <div class="quoteList">${data.quotes.length?data.quotes.map(q=>`<article class="quoteRow"><div><small>${esc(q.reference)}</small><strong>${esc(clientName(q.client_id))}</strong><span>${q.project_id?esc(projectName(q.project_id)):'Sans projet lié'}</span></div><div class="quoteLines"><b>${(q.items||[]).length}</b><small>ligne${(q.items||[]).length!==1?'s':''}</small></div><span class="status">${esc(q.status)}</span><div class="quoteAmount"><strong>${money(q.total)}</strong><small>Acompte ${money(q.deposit_amount||0)}</small></div><div class="listActions"><button class="secondary" data-printquote="${q.id}">Aperçu / PDF</button><button class="secondary" data-editquote="${q.id}">Modifier</button><button class="primary mini" data-invoicequote="${q.id}">Facturer</button><button class="dangerBtn" data-deletequote="${q.id}">Supprimer</button></div></article>`).join(''):empty('Aucun devis.')}</div>`;
+  v.querySelectorAll('[data-editquote]').forEach(b=>b.onclick=()=>editQuote(byId(data.quotes,b.dataset.editquote)));
+  v.querySelectorAll('[data-printquote]').forEach(b=>b.onclick=()=>printQuote(byId(data.quotes,b.dataset.printquote)));
+  v.querySelectorAll('[data-invoicequote]').forEach(b=>b.onclick=()=>invoiceQuote(b.dataset.invoicequote));
+  v.querySelectorAll('[data-deletequote]').forEach(b=>b.onclick=()=>removeRecord('quotes',byId(data.quotes,b.dataset.deletequote),'devis'));
+}
+function editQuote(q){
+  const isNew=!q, services=data.services||[], packs=data.packs||[];
+  let items=normalizeQuoteItems(q?.items||[]);
+  const o=modal(isNew?'Nouveau devis':'Modifier le devis',`
+    <div class="quoteBuilder">
+      <section class="quoteSetup">
+        <div class="formGrid quoteSetupGrid">
+          <label>Référence<input name="reference" value="${esc(q?.reference||'DEV-'+today().slice(2).replaceAll('-','')+'-'+uid())}"></label>
+          <label>Statut<select name="status">${['Brouillon','Envoyé','Accepté','Refusé'].map(x=>`<option ${q?.status===x?'selected':''}>${x}</option>`).join('')}</select></label>
+          <label>Client<select name="client_id">${opts(data.clients,q?.client_id)}</select></label>
+          <label>Projet<select name="project_id">${opts(data.projects,q?.project_id)}</select></label>
+          <label>Valable jusqu’au<input name="valid_until" type="date" value="${esc(q?.valid_until||futureDate(30))}"></label>
+          <label>Acompte (%)<input name="deposit_percent" type="number" min="0" max="100" value="${Number(q?.deposit_percent??30)}"></label>
+          <label>Remise (%)<input name="discount_percent" type="number" min="0" max="100" value="${Number(q?.discount_percent||0)}"></label>
+          <label class="wide">Conditions / notes<textarea name="notes" rows="3">${esc(q?.notes||'Prestation terminée à la livraison. Une série de corrections groupées est incluse lorsqu’elle est prévue dans l’offre. Toute demande supplémentaire après validation ou livraison fait l’objet d’un nouveau devis.')}</textarea></label>
+        </div>
+      </section>
+      <div class="quoteWorkspace">
+        <aside class="quoteCatalog">
+          <div class="quoteCatalogHead"><div><strong>Ajouter des prestations</strong><small>Les prix restent modifiables dans le devis.</small></div><input id="serviceSearch" type="search" placeholder="Rechercher…"></div>
+          <div class="quotePackAdder"><select id="packAdder"><option value="">Ajouter une offre complète…</option>${packs.map(p=>`<option value="${p.id}">${esc(p.name)} · ${money(p.price)}</option>`).join('')}</select><button class="secondary" id="addPack">Ajouter</button></div>
+          <div id="servicePicker" class="servicePicker"></div>
+          <button class="secondary full" id="addCustomLine">+ Ligne libre</button>
+        </aside>
+        <section class="quoteCart">
+          <div class="quoteCartHead"><strong>Contenu du devis</strong><small>Modifie quantité ou prix directement.</small></div>
+          <div id="quoteItems" class="quoteItems"></div>
+          <div class="quoteTotals">
+            <div><span>Sous-total</span><strong id="qSubtotal">0 €</strong></div>
+            <div><span>Remise</span><strong id="qDiscount">0 €</strong></div>
+            <div class="grand"><span>Total</span><strong id="qTotal">0 €</strong></div>
+            <div><span>Acompte</span><strong id="qDeposit">0 €</strong></div>
+          </div>
+        </section>
+      </div>
+    </div>`,
+    `<button class="secondary" id="previewQuote">Aperçu / PDF</button><button class="primary" id="saveQuote">Enregistrer le devis</button>`
+  );
+  o.querySelector('.modal').classList.add('quoteBuilderModal');
+  const servicePicker=o.querySelector('#servicePicker'), itemRoot=o.querySelector('#quoteItems'), search=o.querySelector('#serviceSearch');
+  const discountInput=o.querySelector('[name="discount_percent"]'), depositInput=o.querySelector('[name="deposit_percent"]');
+  function renderServices(){
+    const qv=(search.value||'').trim().toLowerCase();
+    const filtered=services.filter(s=>!qv||[s.name,s.category,s.description].join(' ').toLowerCase().includes(qv));
+    const cats=[...new Set(filtered.map(s=>s.category))];
+    servicePicker.innerHTML=cats.map(cat=>`<section><h4>${esc(cat)}</h4>${filtered.filter(s=>s.category===cat).map(s=>`<button class="servicePick" data-addservice="${s.id}"><span><strong>${esc(s.name)}</strong><small>${esc(s.description||'')}</small></span><b>${money(s.price)}</b></button>`).join('')}</section>`).join('')||'<p class="muted">Aucune prestation trouvée.</p>';
+  }
+  function renderItems(){
+    if(!items.length)itemRoot.innerHTML='<div class="empty quoteEmpty">Ajoute une prestation ou une offre complète.</div>';
+    else itemRoot.innerHTML=items.map((x,i)=>`<article class="quoteItem" data-line="${i}"><div class="quoteItemTitle"><span class="pill">${esc(x.category||'Prestation')}</span><input data-line-label="${i}" value="${esc(x.label)}"><textarea data-line-desc="${i}" rows="2" placeholder="Précision facultative">${esc(x.description||'')}</textarea></div><label>Qté<input data-line-qty="${i}" type="number" min="0" step="1" value="${Number(x.qty||1)}"></label><label>Prix unit.<input data-line-price="${i}" type="number" min="0" step="0.01" value="${Number(x.unit_price||0)}"></label><div class="lineTotal"><small>Total</small><strong>${money(Number(x.qty||0)*Number(x.unit_price||0))}</strong></div><button class="lineRemove" data-remove-line="${i}" aria-label="Supprimer">×</button></article>`).join('');
+    calc();
+  }
+  function calc(){
+    const n=quoteNumbers(items,discountInput.value,depositInput.value);
+    o.querySelector('#qSubtotal').textContent=money(n.subtotal);
+    o.querySelector('#qDiscount').textContent='- '+money(n.discount);
+    o.querySelector('#qTotal').textContent=money(n.total);
+    o.querySelector('#qDeposit').textContent=money(n.deposit);
+    return n;
+  }
+  search.oninput=renderServices;
+  servicePicker.addEventListener('click',e=>{const b=e.target.closest('[data-addservice]');if(!b)return;const s=services.find(x=>x.id===b.dataset.addservice);if(!s)return;items.push({id:s.id+'-'+uid(),label:s.name,description:s.description,category:s.category,unit:s.unit,qty:1,unit_price:Number(s.price),total:Number(s.price)});renderItems()});
+  o.querySelector('#addPack').onclick=()=>{const id=o.querySelector('#packAdder').value,p=packs.find(x=>x.id===id);if(!p)return toast('Choisis une offre.',true);items.push({id:'pack-'+p.id+'-'+uid(),label:p.name,description:[p.description,'Inclus : '+(p.deliverables||[]).join(', ')].join('\n'),category:'Offre complète',unit:'pack',qty:1,unit_price:Number(p.price),total:Number(p.price)});renderItems()};
+  o.querySelector('#addCustomLine').onclick=()=>{items.push({id:'custom-'+uid(),label:'Prestation personnalisée',description:'',category:'Sur mesure',unit:'prestation',qty:1,unit_price:0,total:0});renderItems()};
+  itemRoot.addEventListener('input',e=>{const i=Number(e.target.dataset.lineQty??e.target.dataset.linePrice??e.target.dataset.lineLabel??e.target.dataset.lineDesc);if(!Number.isInteger(i)||!items[i])return;if(e.target.dataset.lineQty!==undefined)items[i].qty=Number(e.target.value||0);if(e.target.dataset.linePrice!==undefined)items[i].unit_price=Number(e.target.value||0);if(e.target.dataset.lineLabel!==undefined)items[i].label=e.target.value;if(e.target.dataset.lineDesc!==undefined)items[i].description=e.target.value;renderItems()});
+  itemRoot.addEventListener('click',e=>{const b=e.target.closest('[data-remove-line]');if(!b)return;items.splice(Number(b.dataset.removeLine),1);renderItems()});
+  discountInput.oninput=calc;depositInput.oninput=calc;
+  function payload(){
+    const n=calc(), val=name=>o.querySelector(`[name="${name}"]`).value;
+    return {reference:val('reference'),status:val('status'),client_id:val('client_id')||null,project_id:val('project_id')||null,valid_until:val('valid_until')||null,discount_percent:Number(val('discount_percent')||0),discount_amount:n.discount,deposit_percent:Number(val('deposit_percent')||0),deposit_amount:n.deposit,subtotal:n.subtotal,total:n.total,notes:val('notes'),items};
+  }
+  o.querySelector('#previewQuote').onclick=()=>printQuote(payload());
+  o.querySelector('#saveQuote').onclick=async()=>{if(!items.length)return toast('Ajoute au moins une prestation au devis.',true);const btn=o.querySelector('#saveQuote');btn.disabled=true;try{const p=payload();await record('quotes',isNew?'POST':'PATCH',isNew?{record:p}:{id:q.id,record:p});o.remove();toast('Devis enregistré.');await load()}catch(e){toast(e.message,true);btn.disabled=false}};
+  renderServices();renderItems();
+}
+
 async function invoiceQuote(id){try{const r=await api('quote-to-invoice',{method:'POST',body:JSON.stringify({id})});toast(r.existing?'Facture déjà créée.':'Facture créée.');view='invoices';await load()}catch(e){toast(e.message,true)}}
 function renderInvoices(v){const billed=data.invoices.reduce((s,i)=>s+Number(i.total||0),0),paid=data.invoices.reduce((s,i)=>s+Number(i.paid_amount||0),0);v.innerHTML=`<div class="financeKpis"><div><span>Facturé</span><strong>${money(billed)}</strong></div><div><span>Encaissé</span><strong>${money(paid)}</strong></div><div><span>À encaisser</span><strong>${money(Math.max(0,billed-paid))}</strong></div></div><div class="simpleList richList">${data.invoices.length?data.invoices.map(i=>`<article><div><strong>${esc(i.reference)}</strong><small>${esc(clientName(i.client_id))}${i.project_id?' · '+esc(projectName(i.project_id)):''}</small></div><span class="status">${esc(i.status)}</span><span>${money(i.total)}</span><span>Payé ${money(i.paid_amount)}</span><div class="listActions"><button class="secondary" data-editinvoice="${i.id}">Modifier</button>${Number(i.paid_amount||0)<Number(i.total||0)?`<button class="primary mini" data-paidinvoice="${i.id}">Marquer payée</button>`:''}<button class="dangerBtn" data-deleteinvoice="${i.id}">Supprimer</button></div></article>`).join(''):empty('Aucune facture.')}</div>`;document.querySelectorAll('[data-editinvoice]').forEach(b=>b.onclick=()=>editInvoice(byId(data.invoices,b.dataset.editinvoice)));document.querySelectorAll('[data-paidinvoice]').forEach(b=>b.onclick=()=>markPaid(byId(data.invoices,b.dataset.paidinvoice)));document.querySelectorAll('[data-deleteinvoice]').forEach(b=>b.onclick=()=>removeRecord('invoices',byId(data.invoices,b.dataset.deleteinvoice),'facture'))}
 function editInvoice(i){const isNew=!i;const o=modal(isNew?'Nouvelle facture':'Modifier la facture',`<div class="formGrid"><label>Référence<input name="reference" value="${esc(i?.reference||'FAC-'+today().slice(2).replaceAll('-','')+'-'+uid())}"></label><label>Statut<select name="status">${['Brouillon','Envoyée','Partiellement payée','Payée','Échue'].map(x=>`<option ${i?.status===x?'selected':''}>${x}</option>`).join('')}</select></label><label>Client<select name="client_id">${opts(data.clients,i?.client_id)}</select></label><label>Projet<select name="project_id">${opts(data.projects,i?.project_id)}</select></label><label>Total (€)<input name="total" type="number" min="0" step="0.01" value="${Number(i?.total||0)}"></label><label>Encaissé (€)<input name="paid_amount" type="number" min="0" step="0.01" value="${Number(i?.paid_amount||0)}"></label><label>Date d'émission<input name="issue_date" type="date" value="${esc(i?.issue_date||today())}"></label><label>Échéance<input name="due_date" type="date" value="${esc(i?.due_date||'')}"></label></div>`,`<button class="primary" id="save">Enregistrer</button>`);o.querySelector('#save').onclick=()=>saveForm(o,'invoices',i,['reference','status','client_id','project_id','total','paid_amount','issue_date','due_date'],['total','paid_amount'])}
