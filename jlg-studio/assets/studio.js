@@ -52,7 +52,17 @@ function renderDashboard(v){
   <div class="dashGrid"><section class="dashPanel"><h3>Dernières demandes</h3><div class="dashList">${recentOrders.length?recentOrders.map(o=>`<div><span><strong>${esc(o.pack_name)}</strong><span>${esc(o.name)}${o.company?' · '+esc(o.company):''}</span></span><b>${esc(o.status)}</b></div>`).join(''):'<div><span>Aucune demande pour le moment.</span></div>'}</div></section><section class="dashPanel"><h3>Projets en cours</h3><div class="dashList">${activeList.length?activeList.map(p=>`<div><span><strong>${esc(p.name)}</strong><span>${clientName(p.client_id)} · ${esc(p.status)}</span><div class="dashProgress"><i style="width:${Math.max(0,Math.min(100,Number(p.progress||0)))}%"></i></div></span><b>${Number(p.progress||0)}%</b></div>`).join(''):'<div><span>Aucun projet actif.</span></div>'}</div></section><section class="dashPanel"><h3>Priorités production</h3><div class="dashList">${priority.length?priority.map(t=>`<div><span><strong>${esc(t.title)}</strong><span>${projectName(t.project_id)} · ${esc(t.category)}</span></span><b>${esc(t.due_label||'À faire')}</b></div>`).join(''):'<div><span>Aucune tâche haute priorité.</span></div>'}</div></section><section class="dashPanel"><h3>Finance à surveiller</h3><div class="dashList"><div><span><strong>À encaisser</strong><span>Total restant sur les factures</span></span><b>${money(outstanding)}</b></div><div><span><strong>Factures échues</strong><span>Relances à prévoir</span></span><b>${overdue}</b></div><div><span><strong>Devis acceptés</strong><span>Opportunités confirmées</span></span><b>${accepted}</b></div></div></section></div>`;
 }
 
-function orderPack(o){return (data?.packs||[]).find(p=>p.id===o.pack_id)||(data?.packs||[]).find(p=>p.name===o.pack_name)||null}
+function orderPack(o){
+  const p=(data?.packs||[]).find(p=>p.id===o.pack_id)||(data?.packs||[]).find(p=>p.name===o.pack_name);
+  if(p)return p;
+  if(o?.poster_details&&Object.keys(o.poster_details).length)return {deliverables:['Fichier numérique HD prêt à imprimer','1 série de corrections groupées','Signature JLG discrète'],not_included:['Impression et expédition','Modifications illimitées','Nouvelles versions après livraison'],delivery_format:'Fichier numérique HD au format prévu dans la demande.',revisions:'1 série de corrections groupées incluse.'};
+  return null;
+}
+function posterFieldsHtml(o){
+  const p=o?.poster_details||{};if(!Object.keys(p).length)return '';
+  const f=(l,v)=>String(v||'').trim()?'<div class="briefField"><small>'+l+'</small><strong>'+esc(v)+'</strong></div>':'';
+  return '<section class="requestSection posterRequestSection"><h3>Affiche personnalisée</h3><div class="briefFields">'+f('Type',p.type)+f('Sujet / lieu',p.subject)+f('Style',p.style==='Autre — préciser'?(p.other_style||p.style):p.style)+f('Format',p.format)+f('Orientation',p.orientation)+f('Titre',p.title)+f('Sous-titre',p.subtitle)+f('Couleurs',p.colors)+f('À faire apparaître',p.elements_include)+f('À éviter',p.elements_avoid)+f('Usage',p.usage)+f('Signature',p.signature===false?'Non':'Oui · JLG discrète')+'</div></section>';
+}
 function briefScore(o){
   const fields=[o.objective,o.target_audience,o.key_message,o.requested_supports,o.existing_assets,o.content_status,o.style,o.inspiration,o.constraints,o.budget,o.deadline,o.notes];
   const filled=fields.filter(v=>String(v||'').trim()).length;
@@ -64,6 +74,10 @@ function buildBriefText(o){
   const options=(o.options||[]).map(x=>`- ${x.label} (+ ${money(x.price)})`).join('\n')||'- Aucune option';
   const included=(p?.deliverables||[]).map(x=>'- '+x).join('\n')||'- À confirmer au devis';
   const excluded=(p?.not_included||[]).map(x=>'- '+x).join('\n')||'- À confirmer au devis';
+  const pd=o.poster_details||{};
+  const poster=Object.keys(pd).length?[
+    '','AFFICHE PERSONNALISÉE',cleanLine('Type',pd.type),cleanLine('Sujet / lieu',pd.subject),cleanLine('Style',pd.style==='Autre — préciser'?(pd.other_style||pd.style):pd.style),cleanLine('Format',pd.format),cleanLine('Orientation',pd.orientation),cleanLine('Titre',pd.title),cleanLine('Sous-titre',pd.subtitle),cleanLine('Couleurs',pd.colors),cleanLine('À faire apparaître',pd.elements_include),cleanLine('À éviter',pd.elements_avoid),cleanLine('Usage',pd.usage),cleanLine('Signature',pd.signature===false?'Non':'JLG discrète')
+  ].filter(Boolean).join('\n'):'';
   return [
     `DEMANDE ${o.reference}`,
     `Date : ${new Date(o.created_at).toLocaleString('fr-FR')}`,
@@ -77,6 +91,7 @@ function buildBriefText(o){
     '',
     'BRIEF',
     cleanLine('Objectif',o.objective),cleanLine('Public cible',o.target_audience),cleanLine('Message principal',o.key_message),cleanLine('Supports souhaités',o.requested_supports),cleanLine('Éléments disponibles',o.existing_assets),cleanLine('État des contenus',o.content_status),cleanLine('Style / ambiance',o.style),cleanLine('Inspirations',o.inspiration),cleanLine('Contraintes / à éviter',o.constraints),cleanLine('Autres précisions',o.notes),
+    poster,
     '',
     'OPTIONS',options,
     '',
@@ -251,6 +266,7 @@ function orderDetail(o){
     <section class="requestSection"><h3>Contact</h3><div class="briefFields">${field('Nom',o.name)}${field('Structure',o.company)}${field('E-mail',o.email)}${field('Téléphone',o.phone)}${field('Ville',o.city)}</div></section>
     <section class="requestSection requestBriefMain"><h3>Brief client</h3><div class="briefFields">${field('Objectif',o.objective)}${field('Public cible',o.target_audience)}${field('Message principal',o.key_message)}${field('Supports souhaités',o.requested_supports)}${field('Éléments disponibles',o.existing_assets)}${field('État des contenus',o.content_status)}${field('Style / ambiance',o.style)}${field('Inspirations',o.inspiration)}${field('Contraintes / à éviter',o.constraints)}${field('Autres précisions',o.notes)}</div></section>
   </div>
+  ${posterFieldsHtml(o)}
   <section class="requestSection"><h3>Options demandées</h3>${options}</section>
   <section class="requestScope"><div><h3>Ce que le client a choisi</h3>${rows(p?.deliverables||[],'yes')}</div><div><h3>Ce qui n’est pas inclus</h3>${rows(p?.not_included||[],'no')}</div></section>
   <section class="requestSection scopeMeta"><div><small>Livraison prévue</small><p>${esc(p?.delivery_format||'À confirmer dans le devis.')}</p></div><div><small>Corrections prévues</small><p>${esc(p?.revisions||'À confirmer dans le devis.')}</p></div></section>
