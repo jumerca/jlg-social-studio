@@ -253,3 +253,67 @@ input,textarea,select{width:100%;border:1px solid #d4cdc1;border-radius:10px;bac
 @media(max-width:960px){.topbar nav{background:#071522!important;border-color:rgba(199,155,69,.24)!important}.topbar nav>a{color:#dce6eb!important}}
 @media(max-width:720px){.headerLogo{width:174px;height:50px}.clientHeaderLogo{width:156px;height:45px}.detailGrid{grid-template-columns:1fr 1fr}.adminColumns{grid-template-columns:1fr}.legalTop{align-items:flex-start;flex-direction:column}.loginCard .officialLogo{width:220px!important;height:95px!important}.studioBrand img{width:126px!important;height:47px!important}}
 @media(max-width:420px){.headerLogo{width:158px;height:46px}.clientHeaderLogo{width:145px;height:42px}.detailGrid{grid-template-columns:1fr}}
+
+
+/* ===== V15 — COMPACT PREMIUM PUBLIC UX ===== */
+.brandLogoLink,.headerLogo{display:none!important}
+.brandSignature{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0}
+.brandSignature>img{width:56px;height:56px;border-radius:50%;object-fit:cover;flex:0 0 56px}
+.brandDivider{width:2px;height:54px;background:linear-gradient(#d79c25,#f0c870);border-radius:99px;flex:0 0 2px}
+.brandSignatureText{display:grid;line-height:1}
+.brandSignatureText strong{font-family:Georgia,"Times New Roman",serif;font-size:36px;font-weight:500;letter-spacing:.04em;color:#f8f5ee}
+.brandSignatureText small{font-size:9px;letter-spacing:.36em;font-weight:800;color:#f4efe5;margin-top:7px}
+.topbar{min-height:82px!important;padding-top:9px!important;padding-bottom:9px!important}
+.heroV15{display:block!important;position:relative;max-width:1180px;padding:62px 22px 40px!important}
+.heroV15:after{content:"";position:absolute;right:0;top:20px;width:42%;height:88%;background:radial-gradient(circle at 70% 30%,rgba(199,155,69,.18),transparent 42%),radial-gradient(circle at 68% 70%,rgba(66,108,143,.12),transparent 48%);pointer-events:none}
+.heroCopy{max-width:790px;position:relative;z-index:1}
+.heroV15 h1{font-size:clamp(48px,6vw,76px)!important;line-height:.98!important;margin-bottom:24px!important}
+.heroV15 .lead{max-width:720px!important}
+.heroActionsV15{display:grid!important;grid-template-columns:1fr 1fr;gap:10px!important;max-width:760px}
+.heroMainCta{grid-column:1/-1;min-height:56px;font-size:16px}
+.heroActionsV15>.secondary,.heroActionsV15>.installHero{min-height:48px}
+.trustV15{display:grid!important;grid-template-columns:repeat(2,max-content);gap:8px 10px!important;margin-top:18px!important}
+.trustV15 span{background:rgba(255,255,255,.72);border:1px solid #dfd6c8;border-radius:999px;padding:7px 11px;font-size:11px}
+
+.processCompact{max-width:1140px;margin:0 auto;padding:24px 20px 30px}
+.compactHead{max-width:720px}.compactHead h2{font:500 clamp(32px,4vw,44px) Georgia,serif;margin:7px 0}.compactHead>p:last-child{color:var(--muted);line-height:1.55}
+.processSteps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.processSteps article{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}
+.processSteps b{position:absolute;right:14px;top:13px;width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:#c89c49;color:#fff;font:500 15px Georgia,serif}
+.stepIcon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#f2eadb;color:#0d2d43;font-size:19px}
+.processSteps h3{font:500 19px Georgia,serif;margin:12px 0 5px}.processSteps p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+
+.offersSection{padding-top:38px!important}
+.offersHead{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.7fr);gap:24px;align-items:end}.offersHead>p{margin:0 0 8px;color:var(--muted);line-height:1.55}
+.featuredGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-top:23px}
+.featuredCard{display:flex;flex-direction:column;min-width:0;background:#fff;border:1px solid #dfd7ca;border-radius:20px;padding:18px;box-shadow:0 10px 30px rgba(19,38,50,.055)}
+.featuredTop{display:flex;justify-content:space-between;align-items:center;gap:8px}.featuredIcon{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#f3e9d6;color:#0c2c42;font-size:18px}
+.featuredCard h3{font:500 23px Georgia,serif;margin:14px 0 6px}.featuredCard>p{color:#667680;line-height:1.5;font-size:13px;min-height:59px;margin:0 0 14px}
+.featuredDelay,.featuredPrice{border-top:1px solid #ece5da;padding:11px 0}.featuredDelay small,.featuredDelay strong,.featuredPrice small,.featuredPrice strong{display:block}.featuredDelay small,.featuredPrice small{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#7c888f;font-weight:900}.featuredDelay strong{font-size:12px;margin-top:3px}.featuredPrice strong{font:500 31px Georgia,serif;color:#9d7024;margin-top:2px}
+.featuredActions{display:grid;grid-template-columns:.7fr 1fr;gap:7px;margin-top:auto}
+.allOffers{margin-top:17px;border:1px solid #ded6ca;background:rgba(255,255,255,.62);border-radius:17px;overflow:hidden}
+.allOffers>summary{list-style:none;padding:16px 18px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:850;color:#173246}
+.allOffers>summary::-webkit-details-marker{display:none}.allOffers>summary:after{content:"＋";font-size:20px;color:#9b722e}.allOffers[open]>summary:after{content:"−"}
+.allOffers>summary small{font-weight:500;color:var(--muted);font-size:10px;margin-left:auto}
+.sectorGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px 14px}
+.sectorCard{background:#fff;border:1px solid #e2dcd2;border-radius:14px;padding:14px;min-width:0}.sectorCard h3{font:500 19px Georgia,serif;margin:8px 0 4px}.sectorCard p{font-size:11px;color:var(--muted);line-height:1.45;margin:0}
+.sectorMeta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.sectorMeta span{background:#f6f5f2;border-radius:9px;padding:8px}.sectorMeta small,.sectorMeta strong{display:block}.sectorMeta small{font-size:8px;text-transform:uppercase;color:#89949a;font-weight:900}.sectorMeta strong{font-size:11px;margin-top:2px}
+.sectorActions{display:flex;gap:6px;flex-wrap:wrap}.sectorActions>*{flex:1}
+
+.customV15{margin-top:16px!important;margin-bottom:16px!important;padding:23px!important}.customV15 h2{font-size:29px!important}
+.installMini{max-width:1160px;margin:16px auto 0;padding:19px 22px;background:linear-gradient(135deg,#071a2a,#103a55);color:#fff;border-radius:20px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:17px;align-items:center}
+.installMiniIcon img{width:58px;height:58px;border-radius:15px}.installMini h2{font:500 24px Georgia,serif;margin:4px 0}.installMini p:not(.kicker){margin:0;color:#c4d0d7;font-size:12px;line-height:1.5}.installMini .kicker{color:#dec17b;margin:0}.installMini .secondary{white-space:nowrap}
+.faqCompact{padding-top:38px!important}.faqCompact .faqGrid{grid-template-columns:repeat(3,1fr)}
+
+@media(max-width:760px){
+  .topbar{min-height:74px!important}.brandSignature{gap:9px}.brandSignature>img{width:46px;height:46px;flex-basis:46px}.brandDivider{height:44px}.brandSignatureText strong{font-size:29px}.brandSignatureText small{font-size:7px;margin-top:5px}
+  .heroV15{padding:44px 18px 25px!important}.heroV15 h1{font-size:43px!important;line-height:1.02!important}.heroV15 .lead{font-size:16px!important;line-height:1.55!important}
+  .heroActionsV15{grid-template-columns:1fr 1fr}.heroMainCta{min-height:52px}
+  .trustV15{grid-template-columns:1fr 1fr!important}.trustV15 span{font-size:10px;text-align:center}
+  .processCompact{padding:20px 15px 25px}.processSteps{grid-template-columns:1fr}.processSteps article{display:grid;grid-template-columns:auto 1fr;column-gap:12px}.processSteps .stepIcon{grid-row:1/3}.processSteps h3{margin:1px 0 3px}.processSteps p{grid-column:2}
+  .offersSection{padding:34px 15px!important}.offersHead{grid-template-columns:1fr;gap:6px}.featuredGrid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin-right:-15px;padding-right:15px}.featuredCard{min-width:82vw;scroll-snap-align:start}
+  .sectorGrid{grid-template-columns:1fr}.allOffers>summary{align-items:flex-start;flex-wrap:wrap}.allOffers>summary small{width:100%;margin:0}.customV15{margin:14px 15px!important}.installMini{margin:14px 15px 0;grid-template-columns:auto 1fr;padding:17px}.installMini>button{grid-column:1/-1}.faqCompact .faqGrid{grid-template-columns:1fr}
+}
+@media(max-width:430px){
+  .brandSignatureText strong{font-size:27px}.heroV15 h1{font-size:39px!important}.heroActionsV15{grid-template-columns:1fr}.heroMainCta{grid-column:auto}.trustV15{grid-template-columns:1fr 1fr!important}.featuredCard{min-width:86vw}
+}
