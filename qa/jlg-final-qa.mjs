@@ -1,7 +1,8 @@
 import { chromium } from 'playwright';
 
-const CREATIVE='https://jumerca.github.io/jlg-social-studio/jlg-creative/';
-const STUDIO='https://jumerca.github.io/jlg-social-studio/jlg-studio/';
+const ROOT=process.env.JLG_BASE||'https://jumerca.github.io/jlg-social-studio/';
+const CREATIVE=new URL('jlg-creative/',ROOT).href;
+const STUDIO=new URL('jlg-studio/',ROOT).href;
 const API='https://wxurfggrvyggqexvjpqi.supabase.co/functions/v1/jlg-api';
 
 const results=[]; let failures=0;
@@ -44,7 +45,9 @@ const fakeData={
  projects:[{id:'pr1',name:'Projet QA',client_id:'c1',budget:349,status:'En cours',progress:40,deadline:'2026-10-20',objective:'Objectif QA',brief:'Brief QA',review_token:'review-qa'}],
  tasks:[{id:'t1',title:'Préparer le devis',project_id:'pr1',status:'À faire',priority:'Haute',category:'Commercial',due_label:'Aujourd’hui'},{id:'t2',title:'Créer le flyer',project_id:'pr1',status:'En cours',priority:'Normale',category:'Production',due_label:'Cette semaine'}],
  quotes:[{id:'q1',reference:'DEV-QA-001',status:'Brouillon',client_id:'c1',project_id:'pr1',subtotal:90,discount_percent:0,discount_amount:0,deposit_percent:30,deposit_amount:27,total:90,valid_until:'2026-10-25',notes:'Conditions QA',items:[{id:'li1',label:'Flyer simple',description:'Flyer QA',category:'Supports imprimés',unit:'support',qty:1,unit_price:90,total:90}]}],
- invoices:[{id:'i1',reference:'FAC-QA-001',status:'Envoyée',client_id:'c1',project_id:'pr1',total:90,paid_amount:30,issue_date:'2026-09-25',due_date:'2026-10-25'}],
+ invoices:[{id:'i1',reference:'FAC-QA-001',kind:'Acompte',status:'Partiellement payée',client_id:'c1',project_id:'pr1',quote_id:'q1',items:[{id:'li1',label:'Flyer simple',description:'Flyer QA',category:'Supports imprimés',unit:'support',qty:1,unit_price:90,total:90}],subtotal:90,discount_amount:0,gross_total:90,deduction_amount:0,total:27,paid_amount:15,issue_date:'2026-09-25',due_date:'2026-10-02',notes:'Conditions QA'}],
+ payments:[{id:'pay1',invoice_id:'i1',amount:15,paid_at:'2026-09-25T09:00:00Z',method:'Virement',reference:'VIR-QA',notes:''}],
+ businessProfile:{display_name:'JLG Creative',publisher:'Julien Mercadier',legal_form:'EI',siren:'123456789',siret:'12345678900011',address:'1 rue QA',postal_code:'19000',city:'Brive',country:'France',email:'qa@example.com',phone:'0500000000',vat_number:'',vat_note:'TVA non applicable, art. 293 B du CGI',mediator_name:'',mediator_url:''},
  prospects:[],content:[],validations:[],deliveries:[],services:fakeServices
 };
 
@@ -55,6 +58,7 @@ const browser=await chromium.launch({headless:true});
  const page=await browser.newPage({viewport:{width:1440,height:1000}}); const errors=await watchErrors(page,'Creative desktop');
  await check('Creative HTTP 200',async()=>{const r=await page.goto(CREATIVE,{waitUntil:'networkidle'});assert(r?.ok(),'HTTP '+r?.status());return page.title()});
  await check('Creative critical static resources',async()=>{for(const p of ['manifest.webmanifest','sw.js','assets/styles.css','assets/public.js','assets/brand-mark.png','legal.html']){const r=await page.request.get(CREATIVE+p);assert(r.ok(),p+' '+r.status())}});
+ await check('Creative legal page has production wording',async()=>{const r=await page.request.get(CREATIVE+'legal.html');const t=await r.text();assert(/Mentions légales & confidentialité/i.test(t),'title');assert(!/À compléter avant lancement commercial massif/i.test(t),'old placeholder remains');assert(/Données personnelles/i.test(t),'privacy')});
  await check('Creative no duplicate ids',async()=>{const d=await page.evaluate(()=>{const a=[...document.querySelectorAll('[id]')].map(x=>x.id);return [...new Set(a.filter((x,i)=>a.indexOf(x)!==i))]});assert(!d.length,d.join(','))});
  await check('Creative 4 main anchors',async()=>{for(const id of ['packs','process','posters','custom'])assert(await page.locator('#'+id).count()===1,'Missing '+id)});
  await check('Creative live catalog = 10 packs and launch prices',async()=>{const d=await page.evaluate(async api=>fetch(api+'?action=catalog').then(r=>r.json()),API);const p=(d.packs||[]).filter(x=>x.active!==false);assert(p.length===10,'packs '+p.length);const e={'Pack Essentiel':349,'Pack Identité & Visuels':590,'Pack Dossier & Présentation Pro':349,'Kit Réseaux Sociaux':349,'Pack Association':349,'Pack Commerce Local':349,'Pack Club Sportif':490,'Pack Événement':590,'Pack Restaurant & Menu':390,'Pack Hôtel & Hébergement':790};for(const [n,v] of Object.entries(e)){const x=p.find(z=>z.name===n);assert(x,n+' missing');assert(Number(x.price)===v,n+'='+x.price)}});
@@ -106,6 +110,7 @@ const browser=await chromium.launch({headless:true});
  const page=await browser.newPage();
  await check('API unknown request token returns safe 404',async()=>{const r=await page.request.get(API+'?action=request-status&token=qa-invalid-token');assert(r.status()===404,'status '+r.status());const j=await r.json();assert(/introuvable/i.test(j.error||''),'body')});
  await check('API protected bootstrap rejects missing owner token',async()=>{const r=await page.request.get(API+'?action=bootstrap');assert(r.status()===401,'status '+r.status());const j=await r.json();assert(/non autorisé/i.test(j.error||''),'body')});
+ await check('API legal profile endpoint is public but contains no secret',async()=>{const r=await page.request.get(API+'?action=legal-info');assert(r.ok(),'status '+r.status());const j=await r.json();assert(j&&typeof j.profile==='object','profile');assert(!('password_hash' in j.profile),'secret leaked')});
  await page.close();
 }
 
@@ -142,7 +147,9 @@ const browser=await chromium.launch({headless:true});
    if(a==='acknowledge-order')return json({status:'Accusée',message:'Accusé QA',token:'public-qa'});
    if(a==='convert-order')return json({clientId:'c1',projectId:'pr1',projectName:'Projet QA'});
    if(a==='share-project')return json({token:'review-qa'});
-   if(a==='quote-to-invoice')return json({existing:false,id:'i2'});
+   if(a==='quote-to-invoice')return json({existing:false,kind:'Solde',invoice:{id:'i2'}});
+   if(a==='record-payment')return json({payment:{id:'pay2'},invoice:{...fakeData.invoices[0],paid_amount:27,status:'Payée'},remaining:0});
+   if(a==='update-business-profile')return json({profile:fakeData.businessProfile});
    if(a==='records'||a==='pack'||a==='change-password')return json({updated:true,id:'qa'});
    return json({});
  });
@@ -177,9 +184,9 @@ const browser=await chromium.launch({headless:true});
  });
  await check('Studio existing quote edit opens with saved line',async()=>{await page.locator('[data-editquote=q1]').click();assert(await page.locator('.quoteItem').count()===1,'existing line');assert((await page.locator('#qTotal').innerText()).includes('90'),'total');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
  await clearOverlays(page); await page.locator('[data-view=invoices]').click();
- await check('Studio Finance edit/new invoice controls work',async()=>{await page.locator('#createRecord').click();assert(await page.locator('.adminModal [name=paid_amount]').count()===1,'paid');await page.locator('.adminModal .close').click();await page.locator('[data-editinvoice=i1]').click();assert(await page.locator('.adminModal [name=due_date]').count()===1,'due');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await check('Studio Finance supports invoice type, details and partial payment capture',async()=>{await page.locator('#createRecord').click();assert(await page.locator('.adminModal [name=kind]').count()===1,'kind');assert(await page.locator('.adminModal [name=total]').count()===1,'total');assert(await page.locator('.adminModal [name=paid_amount]').count()===0,'paid_amount must not be edited directly');await page.locator('.adminModal .close').click();await page.locator('[data-detailinvoice=i1]').click();const detail=await page.locator('.adminModal').innerText();assert(detail.includes('15 €'),'payment total');assert(detail.includes('Virement'),'payment history');await page.locator('.adminModal .close').click();await page.locator('[data-paidinvoice=i1]').click();assert(await page.locator('.adminModal [name=amount]').count()===1,'amount');assert(await page.locator('.adminModal [name=method]').count()===1,'method');await page.locator('.adminModal [name=amount]').fill('12');await page.locator('#savePayment').click();await page.waitForTimeout(80);assert(calls.some(x=>x.action==='record-payment'&&x.method==='POST'),'payment API');}); await clearOverlays(page);
  await clearOverlays(page); await page.locator('[data-view=settings]').click();
- await check('Studio Settings validation works',async()=>{await page.locator('#newPassword').fill('short');await page.locator('#changePassword').click();assert((await page.locator('#studioToast').innerText()).includes('10 caractères'),'validation')});
+ await check('Studio Settings legal profile and password validation work',async()=>{assert(await page.locator('[data-biz=publisher]').count()===1,'publisher');assert(await page.locator('[data-biz=siret]').count()===1,'siret');assert(await page.locator('#saveBusiness').count()===1,'save business');await page.locator('#newPassword').fill('short');await page.locator('#changePassword').click();assert((await page.locator('#studioToast').innerText()).includes('10 caractères'),'password validation')});
  await check('Studio authenticated no duplicate ids in each current view',async()=>{const d=await page.evaluate(()=>{const a=[...document.querySelectorAll('[id]')].map(x=>x.id);return [...new Set(a.filter((x,i)=>a.indexOf(x)!==i))]});assert(!d.length,d.join(','))});
  await check('Studio authenticated desktop no horizontal overflow',async()=>{const v=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);assert(v[0]<=v[1]+2,v.join('/'))});
  await check('Studio authenticated no runtime errors',async()=>errors());
@@ -210,10 +217,11 @@ const browser=await chromium.launch({headless:true});
  const calls=[];
  const portalData={
    project:{id:'pr1',name:'Projet QA',client_id:'c1',progress:55,status:'En cours'},
-   client:{id:'c1',name:'Client QA'},
+   client:{id:'c1',name:'Client QA',email:'qa@example.com'},
    validations:[{id:'v1',title:'Flyer V1',version:'V1',status:'À valider',url:'https://example.com/flyer.pdf',comment:''}],
-   quotes:[{id:'q1',reference:'DEV-QA-001',status:'Envoyé',total:349}],
-   invoices:[{id:'i1',reference:'FAC-QA-001',status:'Envoyée',total:349,paid_amount:100,due_date:'2026-10-20'}],
+   quotes:[{id:'q1',reference:'DEV-QA-001',status:'Envoyé',subtotal:349,discount_percent:0,discount_amount:0,deposit_percent:30,deposit_amount:104.7,total:349,valid_until:'2026-10-25',notes:'Conditions QA',items:[{id:'li1',label:'Flyer simple',description:'Flyer QA',unit:'support',qty:1,unit_price:349,total:349}]}],
+   invoices:[{id:'i1',reference:'FAC-QA-001',kind:'Acompte',status:'Partiellement payée',quote_id:'q1',items:[{id:'li1',label:'Flyer simple',description:'Flyer QA',unit:'support',qty:1,unit_price:349,total:349}],subtotal:349,gross_total:349,deduction_amount:0,total:104.7,paid_amount:50,issue_date:'2026-09-25',due_date:'2026-10-02',notes:'Conditions QA'}],
+   payments:[{id:'pay1',invoice_id:'i1',amount:50,paid_at:'2026-09-25T09:00:00Z',method:'Virement',reference:'VIR-QA'}],
    deliveries:[{id:'d1',title:'Livraison finale',version:'V1',status:'Disponible',url:'https://example.com/final.zip',delivery_date:'2026-10-10'}]
  };
  await page.route(API+'**',async route=>{
@@ -223,6 +231,8 @@ const browser=await chromium.launch({headless:true});
  });
  await check('Client portal loads all four business sections',async()=>{const r=await page.goto(CREATIVE+'client.html?token=qa-review',{waitUntil:'networkidle'});assert(r?.ok(),'HTTP');const t=await page.locator('body').innerText();for(const x of ['Validations','Devis','Factures','Livraisons'])assert(t.includes(x),'missing '+x)});
  await check('Client portal progress and private status visible',async()=>{const t=await page.locator('.clientHero').innerText();assert(t.includes('55%'),'progress');assert(t.includes('ESPACE CLIENT PRIVÉ'),'private')});
+ await check('Client sees complete quote before accepting',async()=>{const card=page.locator('[data-doc-card="quote-q1"]');assert(await card.count()===1,'quote card');await card.locator('summary').click();const t=await card.innerText();for(const x of ['Flyer simple','349','Acompte','Conditions QA'])assert(t.includes(x),'quote detail '+x)});
+ await check('Client sees complete invoice and payment history',async()=>{const card=page.locator('[data-doc-card="invoice-i1"]');assert(await card.count()===1,'invoice card');await card.locator('summary').click();const t=await card.innerText();for(const x of ['Acompte','Reste à payer','Historique des règlements','Virement'])assert(t.includes(x),'invoice detail '+x)});
  await check('Client validation action calls API',async()=>{page.once('dialog',d=>d.accept());await page.locator('[data-validation=v1][data-status="Validé"]').click();await page.waitForTimeout(80);assert(calls.some(x=>x.action==='portal-validation'&&x.method==='POST'),'no validation call')});
  await check('Client quote acceptance calls API',async()=>{page.once('dialog',d=>d.accept());await page.locator('[data-quote=q1][data-qstatus="Accepté"]').click();await page.waitForTimeout(80);assert(calls.some(x=>x.action==='portal-quote'&&x.method==='POST'),'no quote call')});
  await check('Client portal external delivery links are safe and target blank',async()=>{const a=page.locator('a[href*="example.com"]').first();assert(await a.getAttribute('target')==='_blank','target');assert((await a.getAttribute('rel')||'').includes('noopener'),'noopener')});

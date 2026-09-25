@@ -1,19 +1,30 @@
-name: JLG Final QA
+name: JLG Final QA & Deploy
 
 on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/jlg-final-qa.yml'
+      - 'jlg-creative/**'
+      - 'jlg-studio/**'
       - 'qa/jlg-final-qa.mjs'
+      - '.github/workflows/jlg-final-qa.yml'
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: jlg-production
+  cancel-in-progress: true
 
 jobs:
   qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -22,5 +33,20 @@ jobs:
           npm init -y >/dev/null 2>&1
           npm install playwright@1.55.0
           npx playwright install --with-deps chromium
-      - name: Run JLG final QA
+      - name: Serve the exact main commit
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/jlg-http.log 2>&1 &
+          echo $! > /tmp/jlg-http.pid
+          sleep 2
+          curl --fail http://127.0.0.1:4173/jlg-creative/ >/dev/null
+          curl --fail http://127.0.0.1:4173/jlg-studio/ >/dev/null
+      - name: Run JLG final QA against main
+        env:
+          JLG_BASE: http://127.0.0.1:4173/
         run: node qa/jlg-final-qa.mjs
+      - name: Deploy verified commit to gh-pages
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git push origin HEAD:gh-pages --force
