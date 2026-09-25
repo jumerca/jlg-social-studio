@@ -346,3 +346,15 @@ input,textarea,select{font-size:14px!important;padding:12px 13px!important}
   .quoteRow{grid-template-columns:1fr!important}.quoteRow>.quoteAmount{text-align:left;grid-column:auto}.quoteRow>.status{justify-self:start}.quoteRow>.listActions{grid-column:auto}
   .quoteBuilderModal{width:calc(100vw - 12px)!important}.quoteSetupGrid{grid-template-columns:1fr!important}.quoteWorkspace{grid-template-columns:1fr}.quoteCatalog{max-height:none}.servicePicker{max-height:260px}.quoteCart{padding:8px}.quoteItems{max-height:none}.quoteItem{grid-template-columns:1fr 1fr}.quoteItemTitle{grid-column:1/-1}.lineTotal{align-self:center}.lineRemove{position:absolute;right:7px;top:7px}.dialogActions{position:sticky;bottom:0;background:#fbf8f2;padding:10px 0 2px}
 }
+
+
+/* ===== FINAL STUDIO NOTIFICATION / ACK UX ===== */
+.studioNotifToggle{position:relative;min-width:42px;height:42px;border:1px solid #d9e0e2;background:#fff;border-radius:11px;font-size:17px;display:grid;place-items:center}
+.studioNotifToggle:hover{border-color:#c8a45e;background:#fffdf9}
+.studioNotifToggle b{position:absolute;right:-5px;top:-6px;min-width:18px;height:18px;border-radius:99px;background:#c99d49;color:#0a283b;display:grid;place-items:center;padding:0 4px;font-size:9px}
+.ackBtn{border:1px solid #d9c495;background:#f3ead6;color:#72531d;border-radius:10px;padding:9px 12px;font-weight:850;font-size:12px}
+.ackBtn:hover{background:#eadbbd}.ackBtn.mini{padding:7px 9px;font-size:10px}
+.ackIntro{background:#f6efe2;border:1px solid #e0d2b9;border-radius:12px;padding:12px;margin-bottom:12px}.ackIntro p{font-size:11px;color:#5d6e77;margin:7px 0 0}
+.ackLabel{display:grid;gap:7px;font-size:12px;font-weight:850;color:#52636d}.ackLabel textarea{min-height:150px;font-size:13px;line-height:1.5}
+.posterRequestSection{border-color:#d9c795!important;background:#fffdf8!important}.posterRequestSection h3:after{content:" · demande affiche";font-family:Arial,sans-serif;font-size:8px;text-transform:uppercase;letter-spacing:.06em;color:#a2762e;margin-left:5px}
+@media(max-width:720px){.studioNotifToggle{min-width:38px;height:38px}.ackBtn{width:100%}}
