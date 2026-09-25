@@ -72,7 +72,7 @@ async function showClientNotifications(){
   const now=new Date().toISOString();setTrackedRequests(rows.map(r=>({...r,lastSeenAt:now,unseenCount:0})));updateClientNotifBadge(0);
 }
 
-const extras=[['print','Déclinaison prête à imprimer supplémentaire',90],['social','Lot de 5 visuels réseaux supplémentaires',120],['document','Document ou support supplémentaire',140],['format','Déclinaison de format supplémentaire',60]];
+const extras=[['support','Support supplémentaire simple',75],['social','Lot de 5 visuels réseaux supplémentaires',99],['document','Document supplémentaire simple',89],['format','Déclinaison de format supplémentaire',40]];
 let packs=[];
 let featured=[];
 const findPack=id=>packs.find(x=>x.id===id);
