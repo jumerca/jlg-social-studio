@@ -84,10 +84,129 @@ function buildBriefText(o){
 }
 async function copyOrderBrief(o){try{await navigator.clipboard.writeText(buildBriefText(o));toast('Récapitulatif copié.')}catch(e){toast('Copie impossible.',true)}}
 function printOrderBrief(o){
-  const text=esc(buildBriefText(o)).replace(/\n/g,'<br>');
-  const w=window.open('','_blank','width=900,height=800');
+  const p=orderPack(o), score=briefScore(o);
+  const logo=new URL('./assets/brand-mark.png',location.href).href;
+  const options=(o.options||[]).length
+    ? (o.options||[]).map(x=>`<tr><td>${esc(x.label)}</td><td>${money(x.price)}</td></tr>`).join('')
+    : '<tr><td colspan="2" class="mutedCell">Aucune option demandée</td></tr>';
+  const list=(arr=[],negative=false)=>arr?.length
+    ? `<ul class="${negative?'negative':''}">${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`
+    : '<p class="muted">À confirmer au devis.</p>';
+  const field=(label,value,wide=false)=>String(value||'').trim()
+    ? `<div class="field ${wide?'wide':''}"><span>${label}</span><strong>${esc(value)}</strong></div>`
+    : '';
+  const created=new Date(o.created_at).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'});
+  const w=window.open('','_blank','width=1050,height=900');
   if(!w)return toast('Autorisez les fenêtres pour imprimer.',true);
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(o.reference)} — Brief client</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:35px auto;padding:0 20px;color:#172b38;line-height:1.5}h1{font-family:Georgia,serif} .box{border:1px solid #ddd;padding:22px;border-radius:14px;white-space:normal} @media print{body{margin:0}.noPrint{display:none}}</style></head><body><h1>JLG Studio · ${esc(o.reference)}</h1><div class="box">${text}</div><script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.write(`<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(o.reference)} — Fiche brief JLG</title>
+<style>
+@page{size:A4;margin:10mm}
+*{box-sizing:border-box}
+body{margin:0;background:#e9edef;color:#173042;font-family:Arial,Helvetica,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.toolbar{position:sticky;top:0;z-index:5;display:flex;justify-content:center;gap:8px;padding:10px;background:#071a2a}
+.toolbar button{border:0;border-radius:9px;padding:9px 14px;font-weight:800;cursor:pointer}
+.toolbar .print{background:#d1a856;color:#0a2638}.toolbar .close{background:#fff;color:#173042}
+.sheet{width:210mm;min-height:277mm;margin:16px auto;background:#fff;box-shadow:0 18px 45px rgba(14,32,44,.16);overflow:hidden}
+.header{background:linear-gradient(135deg,#061522,#123b55);color:#fff;padding:18mm 14mm 11mm;display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.brand{display:flex;align-items:center;gap:10px}.brand img{width:48px;height:48px;border-radius:50%;object-fit:cover}.brandText{display:grid;line-height:1}.brandText strong{font-family:Georgia,serif;font-size:24px;font-weight:500;letter-spacing:.05em}.brandText small{margin-top:4px;font-size:8px;letter-spacing:.28em;color:#e4c77e;font-weight:900}
+.docTitle{text-align:right}.docTitle small{display:block;font-size:8px;letter-spacing:.12em;color:#bdcbd3;font-weight:900}.docTitle h1{font-family:Georgia,serif;font-size:24px;font-weight:500;margin:4px 0}.docTitle strong{display:block;color:#e3c57d;font-size:11px}.docTitle span{display:block;color:#c4d0d6;font-size:9px;margin-top:4px}
+.body{padding:10mm 14mm 12mm}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:-17mm;margin-bottom:8mm}
+.kpi{background:#fff;border:1px solid #dfe5e7;border-radius:11px;padding:10px 11px;box-shadow:0 7px 20px rgba(16,36,48,.06)}
+.kpi span,.kpi strong{display:block}.kpi span{font-size:7px;text-transform:uppercase;letter-spacing:.07em;color:#7e8b92;font-weight:900}.kpi strong{font-family:Georgia,serif;font-size:16px;margin-top:3px;color:#17364b}
+.scoreBar{height:4px;background:#e7ecee;border-radius:99px;overflow:hidden;margin-top:5px}.scoreBar i{display:block;height:100%;background:linear-gradient(90deg,#c69b48,#5f879f)}
+.section{margin-top:8mm}.sectionTitle{display:flex;align-items:center;gap:8px;margin-bottom:4mm}.sectionTitle b{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:#0b2f47;color:#fff;font-size:9px}.sectionTitle h2{font-family:Georgia,serif;font-size:16px;font-weight:500;margin:0}.sectionTitle:after{content:"";height:1px;background:#dfe5e7;flex:1}
+.twoCol{display:grid;grid-template-columns:1fr 1fr;gap:8px}.card{border:1px solid #dfe5e7;border-radius:11px;padding:11px;background:#fff}.card h3{font-family:Georgia,serif;font-size:13px;margin:0 0 7px}.card p{margin:3px 0;font-size:9px;line-height:1.45;color:#53656f}.card p strong{color:#173042}
+.objective{background:#f6efe2;border:1px solid #e0d2b9;border-radius:11px;padding:11px;margin-bottom:7px}.objective span{display:block;font-size:7px;text-transform:uppercase;color:#8d692b;font-weight:900;letter-spacing:.07em}.objective strong{display:block;margin-top:4px;font-family:Georgia,serif;font-size:13px;line-height:1.4;font-weight:500}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:6px}.field{background:#f7f8f8;border-radius:9px;padding:8px;min-width:0}.field.wide{grid-column:1/-1}.field span,.field strong{display:block}.field span{font-size:7px;text-transform:uppercase;color:#849198;font-weight:900;letter-spacing:.05em}.field strong{font-size:9px;line-height:1.4;margin-top:3px;overflow-wrap:anywhere}
+table{width:100%;border-collapse:collapse;font-size:9px}th,td{padding:7px 8px;border-bottom:1px solid #e5e9ea;text-align:left}th{background:#f5f7f7;font-size:7px;text-transform:uppercase;color:#7c8990;letter-spacing:.05em}td:last-child,th:last-child{text-align:right}.mutedCell{text-align:center!important;color:#8a969c;font-style:italic}
+.scope{display:grid;grid-template-columns:1fr 1fr;gap:8px}.scopeBox{border-radius:11px;padding:10px;border:1px solid #dfe5e7}.scopeBox.included{background:#f7faf8}.scopeBox.excluded{background:#fcf8f8}.scopeBox h3{font-family:Georgia,serif;font-size:12px;margin:0 0 6px}.scopeBox ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}.scopeBox li{font-size:8.5px;line-height:1.35;padding-left:14px;position:relative}.scopeBox li:before{position:absolute;left:0;top:0}.scopeBox ul:not(.negative) li:before{content:"✓";color:#3e7357;font-weight:900}.scopeBox ul.negative li:before{content:"×";color:#984b4b;font-weight:900}
+.delivery{display:grid;grid-template-columns:1fr 1fr;gap:8px}.delivery .card{background:#f8f9f9}
+.next{background:#0b2d43;color:#fff;border-radius:11px;padding:11px}.next h3{font-family:Georgia,serif;font-size:13px;font-weight:500;margin:0 0 7px;color:#e2c57c}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.step{display:grid;grid-template-columns:22px 1fr;gap:6px;align-items:start}.step b{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#d0a753;color:#0b2b3f;font-size:8px}.step span{font-size:8px;line-height:1.35;color:#c7d3d9}
+.footer{margin-top:9mm;padding-top:5mm;border-top:1px solid #dfe5e7;display:flex;justify-content:space-between;gap:10px;color:#819097;font-size:7px}
+.muted{color:#89969c;font-size:8px}
+@media print{
+  body{background:#fff}
+  .toolbar{display:none}
+  .sheet{width:auto;min-height:auto;margin:0;box-shadow:none}
+  .section,.card,.scopeBox,.objective{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="toolbar"><button class="print" onclick="window.print()">Imprimer / enregistrer en PDF</button><button class="close" onclick="window.close()">Fermer</button></div>
+<main class="sheet">
+  <header class="header">
+    <div class="brand"><img src="${logo}" alt=""><div class="brandText"><strong>JLG</strong><small>STUDIO</small></div></div>
+    <div class="docTitle"><small>FICHE BRIEF CLIENT</small><h1>${esc(o.pack_name)}</h1><strong>${esc(o.reference)}</strong><span>Reçue le ${created}</span></div>
+  </header>
+  <div class="body">
+    <section class="kpis">
+      <div class="kpi"><span>Statut</span><strong>${esc(o.status)}</strong></div>
+      <div class="kpi"><span>Brief complété</span><strong>${score}%</strong><div class="scoreBar"><i style="width:${score}%"></i></div></div>
+      <div class="kpi"><span>Estimation</span><strong>${o.estimate?money(o.estimate):'Sur devis'}</strong></div>
+      <div class="kpi"><span>Date souhaitée</span><strong>${esc(o.deadline||'À définir')}</strong></div>
+    </section>
+
+    <section class="section">
+      <div class="sectionTitle"><b>1</b><h2>Client & demande</h2></div>
+      <div class="twoCol">
+        <div class="card"><h3>Coordonnées</h3><p><strong>${esc(o.name)}</strong>${o.company?'<br>'+esc(o.company):''}</p><p>${esc(o.email)}</p><p>${esc(o.phone||'Téléphone non renseigné')}</p><p>${esc(o.city||'Ville non renseignée')}</p><p>Contact préféré : <strong>${esc(o.contact_preference||'Email')}</strong></p></div>
+        <div class="card"><h3>Cadre commercial</h3><p>Offre : <strong>${esc(o.pack_name)}</strong></p><p>Prix de base : <strong>${o.pack_price?money(o.pack_price):'Sur devis'}</strong></p><p>Budget client : <strong>${esc(o.budget||'Non précisé')}</strong></p><p>Options : <strong>${(o.options||[]).length}</strong></p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="sectionTitle"><b>2</b><h2>Brief client</h2></div>
+      <div class="objective"><span>Objectif principal</span><strong>${esc(o.objective)}</strong></div>
+      <div class="fields">
+        ${field('Public cible',o.target_audience)}
+        ${field('Message principal',o.key_message)}
+        ${field('Supports souhaités',o.requested_supports,true)}
+        ${field('Éléments disponibles',o.existing_assets,true)}
+        ${field('État des contenus',o.content_status)}
+        ${field('Style / ambiance',o.style)}
+        ${field('Inspirations',o.inspiration)}
+        ${field('Contraintes / à éviter',o.constraints)}
+        ${field('Autres précisions',o.notes,true)}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="sectionTitle"><b>3</b><h2>Options demandées</h2></div>
+      <table><thead><tr><th>Option</th><th>Montant indicatif</th></tr></thead><tbody>${options}</tbody></table>
+    </section>
+
+    <section class="section">
+      <div class="sectionTitle"><b>4</b><h2>Périmètre de l’offre</h2></div>
+      <div class="scope">
+        <div class="scopeBox included"><h3>Inclus</h3>${list(p?.deliverables||[],false)}</div>
+        <div class="scopeBox excluded"><h3>Non inclus</h3>${list(p?.not_included||[],true)}</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="sectionTitle"><b>5</b><h2>Livraison & corrections</h2></div>
+      <div class="delivery">
+        <div class="card"><h3>Livraison prévue</h3><p>${esc(p?.delivery_format||'À confirmer au devis.')}</p></div>
+        <div class="card"><h3>Corrections prévues</h3><p>${esc(p?.revisions||'À confirmer au devis.')}</p></div>
+      </div>
+    </section>
+
+    <section class="section next">
+      <h3>Prochaines actions JLG</h3>
+      <div class="steps"><div class="step"><b>1</b><span>Vérifier les éléments manquants et les contenus fournis.</span></div><div class="step"><b>2</b><span>Confirmer précisément périmètre, livrables et délai.</span></div><div class="step"><b>3</b><span>Préparer puis envoyer le devis détaillé.</span></div></div>
+    </section>
+
+    <footer class="footer"><span>Document interne généré depuis JLG Studio</span><span>Prestation terminée à la livraison · Toute demande ultérieure = nouveau devis</span></footer>
+  </div>
+</main>
+</body></html>`);
   w.document.close();
 }
 
