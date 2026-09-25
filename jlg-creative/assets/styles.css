@@ -325,3 +325,8 @@ input,textarea,select{width:100%;border:1px solid #d4cdc1;border-radius:10px;bac
 .clientBrandSignature>span:last-child{display:grid;line-height:1}
 .clientBrandSignature strong{font:500 23px Georgia,serif;color:#fff}
 .clientBrandSignature small{font-size:7px;letter-spacing:.25em;font-weight:900;color:#e9e1d3;margin-top:5px}
+
+.turnkeyNote{margin:14px 0 0;background:#f4ecdd;border:1px solid #dfd0b4;border-radius:15px;padding:13px 15px;display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
+.turnkeyNote strong{color:#77551d;font-size:12px;white-space:nowrap}
+.turnkeyNote span{color:#596a74;font-size:11px;line-height:1.5}
+@media(max-width:720px){.turnkeyNote{grid-template-columns:1fr;gap:4px}.turnkeyNote strong{white-space:normal}}
