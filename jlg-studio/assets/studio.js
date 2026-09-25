@@ -5,7 +5,7 @@ let data=null;
 let view='dashboard';
 let studioPollTimer=null;
 const STUDIO_SEEN_KEY='jlg_studio_seen_orders_v1';
-const money=v=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Number(v||0));
+const money=v=>{const n=Number(v||0);return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',minimumFractionDigits:Number.isInteger(n)?0:2,maximumFractionDigits:2}).format(n)};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const today=()=>new Date().toISOString().slice(0,10);
 const uid=()=>String(Date.now()).slice(-6);
@@ -55,7 +55,7 @@ function renderDashboard(v){
 function orderPack(o){
   const p=(data?.packs||[]).find(p=>p.id===o.pack_id)||(data?.packs||[]).find(p=>p.name===o.pack_name);
   if(p)return p;
-  if(o?.poster_details&&Object.keys(o.poster_details).length)return {deliverables:['Fichier numérique HD prêt à imprimer','1 série de corrections groupées','Signature JLG discrète'],not_included:['Impression et expédition','Modifications illimitées','Nouvelles versions après livraison'],delivery_format:'Fichier numérique HD au format prévu dans la demande.',revisions:'1 série de corrections groupées incluse.'};
+  if(o?.poster_details&&Object.keys(o.poster_details).length)return {deliverables:['1 fichier numérique HD prêt à imprimer au format choisi','Portrait ou paysage','1 correction légère','Signature JLG discrète'],not_included:['Impression, cadre et expédition','Formats supplémentaires','Retouches illimitées','Nouvelles versions après livraison'],delivery_format:'1 fichier numérique HD au format et à l’orientation prévus dans la demande.',revisions:'1 correction légère incluse.'};
   return null;
 }
 function posterFieldsHtml(o){
@@ -64,6 +64,12 @@ function posterFieldsHtml(o){
   return '<section class="requestSection posterRequestSection"><h3>Affiche personnalisée</h3><div class="briefFields">'+f('Type',p.type)+f('Sujet / lieu',p.subject)+f('Style',p.style==='Autre — préciser'?(p.other_style||p.style):p.style)+f('Format',p.format)+f('Orientation',p.orientation)+f('Titre',p.title)+f('Sous-titre',p.subtitle)+f('Couleurs',p.colors)+f('À faire apparaître',p.elements_include)+f('À éviter',p.elements_avoid)+f('Usage',p.usage)+f('Signature',p.signature===false?'Non':'Oui · JLG discrète')+'</div></section>';
 }
 function briefScore(o){
+  const pd=o?.poster_details||{};
+  if(Object.keys(pd).length){
+    const fields=[pd.subject,pd.type,pd.style,pd.format,pd.orientation,pd.usage,o.name,o.email,o.deadline,pd.title,pd.colors,pd.elements_include];
+    const filled=fields.filter(v=>String(v||'').trim()).length;
+    return Math.round((filled/fields.length)*100);
+  }
   const fields=[o.objective,o.target_audience,o.key_message,o.requested_supports,o.existing_assets,o.content_status,o.style,o.inspiration,o.constraints,o.budget,o.deadline,o.notes];
   const filled=fields.filter(v=>String(v||'').trim()).length;
   return Math.round((filled/fields.length)*100);
