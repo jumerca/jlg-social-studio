@@ -361,3 +361,15 @@ input,textarea,select{font-size:14px!important;padding:12px 13px!important}
 
 .offersIntro,.quoteIntro{align-items:center}
 @media(max-width:720px){.offersIntro,.quoteIntro{align-items:flex-start}}
+
+/* ===== FINAL QA STUDIO ===== */
+.offerMemoBlock p,.offerMemoBlock li,.memoList span{font-size:12px!important}
+.serviceMemo strong{font-size:12px!important}.serviceMemo small{font-size:10px!important}.serviceMemo>span{font-size:11px!important}
+.servicePick span strong{font-size:12px!important}.servicePick span small{font-size:10px!important}.servicePick>b{font-size:11px!important}
+.quoteCatalogHead small,.quoteCartHead small{font-size:10px!important}
+.quoteItemTitle textarea{font-size:11px!important}.quoteItem label{font-size:10px!important}.lineTotal small{font-size:9px!important}
+@media(max-width:760px){
+  .studioSide nav button{font-size:12px!important}
+  .orderOpen p,.orderOpen small{font-size:12px!important}
+  .offerMemo>summary small{font-size:11px!important}
+}
