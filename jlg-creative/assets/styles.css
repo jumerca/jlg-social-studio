@@ -417,3 +417,22 @@ input,textarea,select{width:100%;border:1px solid #d4cdc1;border-radius:10px;bac
   .processSteps article{min-width:78vw!important}
   .featuredCard{min-width:84vw!important}
 }
+
+
+/* ===== V18 — POSTERS + CLIENT NOTIFICATIONS ===== */
+.clientNotifBtn{position:relative;border:1px solid rgba(224,189,114,.34);background:rgba(255,255,255,.06);color:#e5edf1;border-radius:10px;padding:9px 11px;font-weight:800;font-size:12px}
+.clientNotifBtn b{position:absolute;right:-5px;top:-6px;min-width:18px;height:18px;border-radius:99px;background:#d4aa5a;color:#0b2638;display:grid;place-items:center;font-size:9px;padding:0 4px}
+.posterSection{max-width:1160px;margin:15px auto;padding:22px;background:linear-gradient(145deg,#071a2a,#103a55);color:#fff;border-radius:22px;box-shadow:0 18px 45px rgba(9,28,42,.12)}
+.posterIntro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end}.posterIntro h2{font:500 34px Georgia,serif;margin:5px 0 7px}.posterIntro>div>p:last-child{margin:0;color:#c5d2d8;line-height:1.5;font-size:13px;max-width:760px}.posterIntro .kicker{color:#e0c27b;margin:0}.posterIntro .primary{background:#d2a957;color:#0a2739}
+.posterPriceGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:18px}.posterPriceGrid article{background:rgba(255,255,255,.065);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:13px;display:grid;gap:4px}.posterPriceGrid span{font-size:10px;line-height:1.35;color:#d2dce1}.posterPriceGrid strong{font:500 26px Georgia,serif;color:#e5c77e}.posterPriceGrid small{font-size:8px;color:#9fb1bc}
+.posterStyles{margin-top:14px}.posterStyles>strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#e0c27b;margin-bottom:7px}.posterStyleChips{display:flex;gap:6px;flex-wrap:wrap}.posterStyleChips span{font-size:9px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.055);border-radius:999px;padding:6px 8px;color:#d6e0e5}
+.posterNote{margin:12px 0 0!important;font-size:9px!important;color:#aebdc5!important}
+.posterOrderModal{width:min(760px,100%)!important}.posterFormGrid select,.posterFormGrid input,.posterFormGrid textarea{font-size:13px}.posterOtherHidden{display:none!important}.posterSummary{grid-template-columns:1fr 1fr!important}
+.trackModal{width:min(700px,100%)!important}.trackModalHead{padding:22px 22px 8px}.trackModalHead .kicker{margin:0}.trackModalHead h2{font:500 28px Georgia,serif;margin:5px 0}.trackModalHead p{margin:0;color:#6f7d85;font-size:12px}.trackCards{padding:8px 18px 18px;display:grid;gap:10px}.clientTrackCard{background:#fff;border:1px solid #ded7cb;border-radius:14px;padding:13px}.trackHead{display:flex;justify-content:space-between;gap:10px;align-items:start}.trackHead small,.trackHead strong{display:block}.trackHead small{font-size:9px;color:#849096}.trackHead strong{font:500 17px Georgia,serif;margin-top:3px}.trackTimeline{margin-top:10px;display:grid;gap:0}.trackTimeline>div{display:grid;grid-template-columns:12px 1fr;gap:8px;position:relative;padding-bottom:10px}.trackTimeline>div>b{width:9px;height:9px;border-radius:50%;background:#c79b45;margin-top:4px;z-index:1}.trackTimeline>div:not(:last-child):after{content:"";position:absolute;left:4px;top:12px;bottom:-2px;width:1px;background:#d9dfe1}.trackTimeline strong,.trackTimeline small{display:block}.trackTimeline strong{font-size:11px}.trackTimeline small{font-size:8px;color:#8a969c;margin-top:2px}.trackTimeline p{margin:4px 0 0;color:#5e6f78;font-size:10px;line-height:1.45}
+@media(max-width:760px){
+  .clientNotifBtn{width:100%;justify-content:flex-start;text-align:left}
+  .posterSection{margin:10px 15px;padding:16px;border-radius:18px}.posterIntro{grid-template-columns:1fr;gap:11px}.posterIntro h2{font-size:27px}.posterIntro .primary{width:100%}
+  .posterPriceGrid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;margin-right:-16px;padding-right:16px;scrollbar-width:none}.posterPriceGrid::-webkit-scrollbar{display:none}.posterPriceGrid article{min-width:63vw;scroll-snap-align:start}
+  .posterStyleChips{flex-wrap:nowrap;overflow-x:auto;margin-right:-16px;padding-right:16px;scrollbar-width:none}.posterStyleChips span{flex:0 0 auto}
+  .posterSummary{grid-template-columns:1fr!important}
+}
