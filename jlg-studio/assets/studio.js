@@ -121,6 +121,8 @@ function printOrderBrief(o){
     ? `<div class="field ${wide?'wide':''}"><span>${label}</span><strong>${esc(value)}</strong></div>`
     : '';
   const created=new Date(o.created_at).toLocaleString('fr-FR',{dateStyle:'medium',timeStyle:'short'});
+  const pd=o.poster_details||{};
+  const posterPrint=Object.keys(pd).length?'<section class="section"><div class="sectionTitle"><b>★</b><h2>Affiche personnalisée</h2></div><div class="fields">'+field('Type',pd.type)+field('Sujet / lieu',pd.subject)+field('Style',pd.style==='Autre — préciser'?(pd.other_style||pd.style):pd.style)+field('Format',pd.format)+field('Orientation',pd.orientation)+field('Titre',pd.title)+field('Sous-titre',pd.subtitle)+field('Couleurs',pd.colors)+field('À faire apparaître',pd.elements_include,true)+field('À éviter',pd.elements_avoid,true)+field('Usage',pd.usage)+field('Signature',pd.signature===false?'Non':'JLG discrète')+'</div></section>':'';
   const w=window.open('','_blank','width=1050,height=900');
   if(!w)return toast('Autorisez les fenêtres pour imprimer.',true);
   w.document.write(`<!doctype html>
