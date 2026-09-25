@@ -436,3 +436,9 @@ input,textarea,select{width:100%;border:1px solid #d4cdc1;border-radius:10px;bac
   .posterStyleChips{flex-wrap:nowrap;overflow-x:auto;margin-right:-16px;padding-right:16px;scrollbar-width:none}.posterStyleChips span{flex:0 0 auto}
   .posterSummary{grid-template-columns:1fr!important}
 }
+
+.briefExtras{grid-column:1/-1;margin-top:4px;border:1px solid #ddd5c8;background:#fff;border-radius:12px;overflow:hidden}
+.briefExtras>summary{list-style:none;cursor:pointer;padding:11px 12px;font-size:11px;font-weight:850;color:#40535e;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.briefExtras>summary::-webkit-details-marker{display:none}.briefExtras>summary:after{content:"＋";color:#98702d;font-size:16px}.briefExtras[open]>summary:after{content:"−"}
+.briefExtras>summary small{margin-left:auto;color:#89959b;font-size:9px;font-weight:600}
+.briefExtrasGrid{padding:0 12px 12px!important;margin-top:0!important}
