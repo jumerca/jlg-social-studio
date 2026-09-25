@@ -6,7 +6,7 @@ let packs=[];
 const featured=[
 {id:'featured-essential',name:'Pack Essentiel',category:'Essentiel',description:'Pour lancer une communication claire et professionnelle sans multiplier les supports inutiles.',price:490,delay:'5 à 7 jours ouvrés',deliverables:['Mini direction visuelle','1 support principal au choix','5 visuels réseaux sociaux','Fichiers prêts à l’emploi']},
 {id:'featured-identity',name:'Pack Identité & Visuels',category:'Image de marque',description:'Pour construire une image cohérente et disposer de visuels que vous pourrez réellement réutiliser.',price:890,delay:'7 à 10 jours ouvrés',deliverables:['Direction graphique','Identité visuelle légère','2 supports de communication','Kit réseaux sociaux']},
-{id:'featured-digital',name:'Site Vitrine Clé en Main',category:'Digital',description:'Pour présenter votre activité avec un site simple et professionnel, livré prêt à utiliser sans maintenance mensuelle imposée.',price:1490,delay:'10 à 15 jours ouvrés',deliverables:['Site vitrine jusqu’à 5 pages','Version mobile','Formulaire de contact','SEO local de base','Mise en ligne initiale','Guide de prise en main']}
+{id:'featured-digital',name:'Site Vitrine Clé en Main',category:'Digital',description:'Pour présenter votre activité avec un site simple et professionnel, livré prêt à utiliser sans maintenance mensuelle imposée.',price:1490,delay:'12 à 18 jours ouvrés',deliverables:['Site vitrine jusqu’à 5 pages','Version mobile','Formulaire de contact','SEO local de base','Mise en ligne initiale','Guide de prise en main']}
 ];
 const findPack=id=>[...featured,...packs].find(x=>x.id===id);
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
