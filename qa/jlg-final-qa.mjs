@@ -71,7 +71,7 @@ const browser=await chromium.launch({headless:true});
 
 // CREATIVE CLIENT NOTIFICATION LOGIC WITH MOCK STATUS
 {
- const context=await browser.newContext({viewport:{width:390,height:844}});
+ const context=await browser.newContext({viewport:{width:1100,height:800}});
  await context.addInitScript(()=>{
    const now=Date.now();
    localStorage.setItem('jlg_creative_requests_v2',JSON.stringify([{token:'qa-token',reference:'CMD-QA-NOTIF',packName:'Pack Essentiel',createdAt:new Date(now-60000).toISOString(),lastSeenAt:new Date(now-60000).toISOString(),lastNotifiedAt:new Date(now-60000).toISOString(),status:'Nouvelle',updates:[]}]));
@@ -105,14 +105,17 @@ const browser=await chromium.launch({headless:true});
 {
  const page=await browser.newPage();
  await check('API unknown request token returns safe 404',async()=>{const r=await page.request.get(API+'?action=request-status&token=qa-invalid-token');assert(r.status()===404,'status '+r.status());const j=await r.json();assert(/introuvable/i.test(j.error||''),'body')});
+ await check('API protected bootstrap rejects missing owner token',async()=>{const r=await page.request.get(API+'?action=bootstrap');assert(r.status()===401,'status '+r.status());const j=await r.json();assert(/non autorisé/i.test(j.error||''),'body')});
  await page.close();
 }
 
 // STUDIO LOGIN LIVE
 {
- const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=await watchErrors(page,'Studio login');await page.goto(STUDIO,{waitUntil:'networkidle'});
+ const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=await watchErrors(page,'Studio login');
+ await page.route(API+'?action=login',async route=>route.fulfill({status:401,contentType:'application/json',body:JSON.stringify({error:'Mot de passe incorrect'})}));
+ await page.goto(STUDIO,{waitUntil:'networkidle'});
  await check('Studio HTTP 200 and assets',async()=>{for(const p of ['manifest.webmanifest','sw.js','assets/styles.css','assets/studio.js','assets/icon-192.png']){const r=await page.request.get(STUDIO+p);assert(r.ok(),p+' '+r.status())}});
- await check('Studio wrong password rejected visibly',async()=>{await page.locator('#pwd').fill('QA-WRONG-'+Date.now());await page.locator('#login').click();await page.waitForTimeout(800);assert(/incorrect|tentatives/i.test(await page.locator('#loginErr').innerText()),'no error')});
+ await check('Studio wrong password rejected visibly',async()=>{await page.locator('#pwd').fill('QA-WRONG-'+Date.now());await page.locator('#login').click();await page.locator('#loginErr').waitFor({state:'visible'});const msg=await page.locator('#loginErr').innerText();assert(/mot de passe incorrect/i.test(msg),'message='+msg)});
  await check('Studio login no duplicate ids',async()=>{const d=await page.evaluate(()=>{const a=[...document.querySelectorAll('[id]')].map(x=>x.id);return [...new Set(a.filter((x,i)=>a.indexOf(x)!==i))]});assert(!d.length,d.join(','))});
  await check('Studio login no horizontal overflow',async()=>{const v=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);assert(v[0]<=v[1]+2,v.join('/'))});
  await check('Studio login no runtime errors',async()=>errors());
@@ -152,11 +155,11 @@ const browser=await chromium.launch({headless:true});
    await check('Studio tab works: '+title,async()=>{await page.locator('[data-view='+key+']').click();await page.waitForTimeout(30);assert((await page.locator('.studioTop h1').innerText())===title,'title mismatch');assert(await page.locator('#viewRoot').count()===1,'root')});
  }
  await clearOverlays(page); await page.locator('[data-view=orders]').click();
- await check('Studio request detail opens with full brief',async()=>{await page.locator('[data-order=o1]').click();const t=await page.locator('.adminModal').innerText();for(const x of ['Brief client','Périmètre','Prochaines actions'])assert(t.includes(x),'missing '+x);await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await check('Studio request detail opens with full brief',async()=>{await page.locator('[data-order=o1]').click();const t=await page.locator('.adminModal').innerText();for(const x of ['Brief client','Ce que le client a choisi','Ce qui n’est pas inclus','Prochaines actions conseillées'])assert(t.includes(x),'missing '+x);await page.locator('.adminModal .close').click()}); await clearOverlays(page);
  await check('Studio poster request detail contains poster specifics',async()=>{await page.locator('[data-order=o2]').click();const t=await page.locator('.adminModal').innerText();assert(t.includes('Affiche personnalisée'),'poster section');assert(t.includes('A4'),'format');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
  await check('Studio acknowledgement button opens and sends action',async()=>{await page.locator('[data-ack-order=o1]').click();assert((await page.locator('.adminModal').innerText()).includes('Message au client'),'modal');await page.locator('#ackSend').click();await page.waitForTimeout(120);assert(calls.some(x=>x.action==='acknowledge-order'),'no API call')}); await clearOverlays(page);
  await clearOverlays(page); await page.locator('[data-view=packs]').click();
- await check('Studio offers directory has 10 offers, search and edit work',async()=>{assert(await page.locator('.offerMemo').count()===10,'offers');await page.locator('#offerSearch').fill('Hôtel');const visible=await page.locator('.offerMemo:visible').count();assert(visible===1,'search visible '+visible);await page.locator('#offerSearch').fill('');await page.locator('[data-editpack=p1]').click();assert((await page.locator('.adminModal').innerText()).includes('Ce qui n’est pas inclus'),'edit fields');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
+ await check('Studio offers directory has 10 offers, search and edit work',async()=>{assert(await page.locator('.offerMemo').count()===10,'offers');await page.locator('#offerSearch').fill('Hôtel');const visible=await page.locator('.offerMemo:visible').count();assert(visible===1,'search visible '+visible);await page.locator('#offerSearch').fill('');const memo=page.locator('.offerMemo').filter({has:page.locator('[data-editpack=p1]')});if(!(await memo.getAttribute('open')))await memo.locator('summary').click();await page.locator('[data-editpack=p1]').click();assert((await page.locator('.adminModal').innerText()).includes('Ce qui n’est pas inclus'),'edit fields');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
  await clearOverlays(page); await page.locator('[data-view=clients]').click();
  await check('Studio Clients new/edit modal works',async()=>{await page.locator('#createRecord').click();assert((await page.locator('.adminModal').innerText()).includes('Nom / structure'),'new client');await page.locator('.adminModal .close').click();await page.locator('[data-editclient=c1]').click();assert(await page.locator('.adminModal [name=email]').count()===1,'email');await page.locator('.adminModal .close').click()}); await clearOverlays(page);
  await clearOverlays(page); await page.locator('[data-view=projects]').click();
