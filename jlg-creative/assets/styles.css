@@ -345,3 +345,75 @@ input,textarea,select{width:100%;border:1px solid #d4cdc1;border-radius:10px;bac
 .turnkeyModal{background:#0b2d43;color:#fff;border-radius:13px;padding:14px;display:grid;gap:5px}.turnkeyModal strong{font-size:12px;color:#e4c77f}.turnkeyModal span{font-size:11px;line-height:1.5;color:#c6d2d8}
 .modal>.full{margin-top:13px!important}
 @media(max-width:720px){.detailBody{padding:14px 15px 2px}.detailBlock{padding:12px}}
+
+
+/* ===== V16 — REDUCE VERTICAL SCROLL ===== */
+.turnkeyDetails{margin:12px 0 0;border:1px solid #dfd0b4;background:#f6efe3;border-radius:13px;overflow:hidden}
+.turnkeyDetails summary{padding:12px 14px;cursor:pointer;font-size:11px;font-weight:900;color:#77551d;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.turnkeyDetails summary::-webkit-details-marker{display:none}
+.turnkeyDetails summary:after{content:"＋";font-size:17px}
+.turnkeyDetails[open] summary:after{content:"−"}
+.turnkeyDetails p{margin:0;padding:0 14px 13px;color:#5e6f78;font-size:11px;line-height:1.5}
+
+.actionStrip{max-width:1160px;margin:14px auto;padding:17px 20px;background:#fff;border:1px solid #ddd5c8;border-radius:17px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center}
+.actionStrip>div{display:grid;gap:3px}.actionStrip .kicker{margin:0}.actionStrip strong{font:500 22px Georgia,serif;color:#173246}.actionStrip span{font-size:11px;color:#667781}
+.actionStrip .primary{white-space:nowrap}
+
+.utilityStrip{max-width:1160px;margin:12px auto 34px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
+.utilityStrip>details{background:rgba(255,255,255,.72);border:1px solid #ddd5c8;border-radius:13px;overflow:hidden}
+.utilityStrip>details>summary{list-style:none;cursor:pointer;padding:12px 14px;font-size:11px;font-weight:850;color:#344b59;display:flex;align-items:center;justify-content:space-between}
+.utilityStrip>details>summary::-webkit-details-marker{display:none}.utilityStrip>details>summary:after{content:"＋";font-size:16px;color:#9a722e}.utilityStrip>details[open]>summary:after{content:"−"}
+.utilityContent{padding:0 14px 12px;display:grid;gap:7px}.utilityContent p{margin:0;font-size:10px;line-height:1.45;color:#667781}
+.utilityInstall{border:1px solid #d5c8ad;background:#f2e8d5;color:#72531d;border-radius:12px;min-height:42px;padding:9px 13px;font-weight:800;white-space:nowrap}
+.mobileActionBar{display:none}
+
+@media(max-width:760px){
+  body{padding-bottom:72px}
+  .heroV15{padding:29px 15px 16px!important}
+  .heroV15 h1{font-size:36px!important;line-height:1.01!important;margin:8px 0 13px!important}
+  .heroV15 .lead{font-size:14px!important;line-height:1.45!important;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  .heroActionsV15{grid-template-columns:1fr 1fr!important;gap:7px!important;margin-top:16px!important}
+  .heroMainCta{grid-column:1/-1!important;min-height:47px!important}
+  .heroActionsV15>.secondary,.heroActionsV15>.installHero{min-height:41px!important;font-size:11px!important}
+  .trustV15{display:flex!important;overflow-x:auto!important;gap:7px!important;margin:12px -15px 0 0!important;padding-right:15px!important;scrollbar-width:none}
+  .trustV15::-webkit-scrollbar{display:none}.trustV15 span{flex:0 0 auto!important;white-space:nowrap!important;padding:6px 9px!important}
+
+  .processCompact{padding:12px 15px 16px!important}
+  .compactHead h2{font-size:27px!important;margin:4px 0!important}
+  .compactHead>p:last-child{font-size:11px!important;margin:0!important}
+  .processSteps{display:flex!important;overflow-x:auto!important;gap:9px!important;margin:12px -15px 0 0!important;padding-right:15px!important;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .processSteps::-webkit-scrollbar{display:none}
+  .processSteps article{min-width:72vw!important;scroll-snap-align:start!important;display:grid!important;grid-template-columns:auto 1fr!important;padding:14px!important}
+  .processSteps .stepIcon{width:36px!important;height:36px!important}.processSteps h3{font-size:17px!important}.processSteps p{font-size:11px!important}
+  
+  .offersSection{padding:21px 15px!important}
+  .offersHead h2{font-size:29px!important;margin:4px 0!important}.offersHead>p{font-size:11px!important}
+  .featuredGrid{margin-top:14px!important}
+  .featuredCard{min-width:78vw!important;padding:15px!important}
+  .featuredCard h3{font-size:20px!important;margin:10px 0 5px!important}
+  .featuredCard>p{font-size:11px!important;line-height:1.4!important;min-height:46px!important}
+  .featuredDelay,.featuredPrice{padding:8px 0!important}
+  .featuredPrice strong{font-size:26px!important}
+  .featuredActions>*{min-height:38px!important;padding:7px 9px!important;font-size:11px!important}
+  .turnkeyDetails{margin-top:9px!important}
+  .allOffers{margin-top:9px!important}.allOffers>summary{padding:12px 13px!important;font-size:11px!important}.allOffers>summary small{font-size:9px!important}
+
+  .actionStrip{margin:10px 15px!important;padding:14px!important;grid-template-columns:1fr auto!important;gap:10px!important}
+  .actionStrip strong{font-size:17px!important}.actionStrip span{display:none!important}.actionStrip .primary{min-height:38px!important;padding:7px 10px!important;font-size:10px!important}
+  
+  .utilityStrip{margin:9px 15px 10px!important;display:block!important}
+  .utilityInstall{display:none!important}
+  
+  footer{padding:18px 15px 82px!important}
+  footer .footerLinks{gap:5px!important}.footerLinks .footerBtn[data-install-app]{display:none!important}
+
+  .mobileActionBar{position:fixed;left:10px;right:10px;bottom:9px;z-index:85;display:grid;grid-template-columns:.8fr 1.2fr;gap:7px;background:rgba(6,21,34,.94);backdrop-filter:blur(13px);padding:7px;border:1px solid rgba(224,189,114,.26);border-radius:15px;box-shadow:0 15px 36px rgba(0,0,0,.22)}
+  .mobileActionBar a,.mobileActionBar button{min-height:43px;border-radius:10px;border:0;font-weight:850;font-size:11px;display:flex;align-items:center;justify-content:center;text-decoration:none}
+  .mobileActionBar a{background:rgba(255,255,255,.09);color:#f1f4f6}
+  .mobileActionBar button{background:#d4aa5a;color:#0b2638}
+}
+@media(max-width:430px){
+  .heroV15 h1{font-size:34px!important}
+  .processSteps article{min-width:78vw!important}
+  .featuredCard{min-width:84vw!important}
+}
