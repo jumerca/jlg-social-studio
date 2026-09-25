@@ -1,6 +1,6 @@
 const API='https://wxurfggrvyggqexvjpqi.supabase.co/functions/v1/jlg-api';
 const root=document.querySelector('#clientRoot');
-const money=v=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Number(v||0));
+const money=v=>{const n=Number(v||0);return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',minimumFractionDigits:Number.isInteger(n)?0:2,maximumFractionDigits:2}).format(n)};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const token=new URLSearchParams(location.search).get('token')||'';
 function safeHref(value){try{const u=new URL(value,location.origin);return ['http:','https:'].includes(u.protocol)?u.href:''}catch{return ''}}
