@@ -317,3 +317,11 @@ input,textarea,select{width:100%;border:1px solid #d4cdc1;border-radius:10px;bac
 @media(max-width:430px){
   .brandSignatureText strong{font-size:27px}.heroV15 h1{font-size:39px!important}.heroActionsV15{grid-template-columns:1fr}.heroMainCta{grid-column:auto}.trustV15{grid-template-columns:1fr 1fr!important}.featuredCard{min-width:86vw}
 }
+
+.clientLogoLink,.clientHeaderLogo{display:none!important}
+.clientBrandSignature{display:flex;align-items:center;gap:8px;text-decoration:none}
+.clientBrandSignature>img{width:40px;height:40px;border-radius:50%;object-fit:cover}
+.clientBrandDivider{width:1px;height:36px;background:#d3a653}
+.clientBrandSignature>span:last-child{display:grid;line-height:1}
+.clientBrandSignature strong{font:500 23px Georgia,serif;color:#fff}
+.clientBrandSignature small{font-size:7px;letter-spacing:.25em;font-weight:900;color:#e9e1d3;margin-top:5px}
