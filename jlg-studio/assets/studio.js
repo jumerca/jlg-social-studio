@@ -156,7 +156,7 @@ table{width:100%;border-collapse:collapse;font-size:9px}th,td{padding:7px 8px;bo
 .delivery{display:grid;grid-template-columns:1fr 1fr;gap:8px}.delivery .card{background:#f8f9f9}
 .next{background:#0b2d43;color:#fff;border-radius:11px;padding:11px}.next h3{font-family:Georgia,serif;font-size:13px;font-weight:500;margin:0 0 7px;color:#e2c57c}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.step{display:grid;grid-template-columns:22px 1fr;gap:6px;align-items:start}.step b{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#d0a753;color:#0b2b3f;font-size:8px}.step span{font-size:8px;line-height:1.35;color:#c7d3d9}
 .footer{margin-top:9mm;padding-top:5mm;border-top:1px solid #dfe5e7;display:flex;justify-content:space-between;gap:10px;color:#819097;font-size:7px}
-.muted{color:#89969c;font-size:8px}
+.muted{color:#89969c;font-size:8px}.posterPrint{margin-top:7mm;padding-top:5mm;border-top:1px dashed #d7dee1}.posterPrint h3{font-family:Georgia,serif;font-size:13px;font-weight:500;margin:0 0 4mm}
 @media print{
   body{background:#fff}
   .toolbar{display:none}
@@ -202,6 +202,7 @@ table{width:100%;border-collapse:collapse;font-size:9px}th,td{padding:7px 8px;bo
         ${field('Contraintes / à éviter',o.constraints)}
         ${field('Autres précisions',o.notes,true)}
       </div>
+      ${Object.keys(o.poster_details||{}).length?`<div class="posterPrint"><h3>Détails de l’affiche</h3><div class="fields">${field('Type',o.poster_details.type)}${field('Sujet / lieu',o.poster_details.subject)}${field('Style',o.poster_details.style==='Autre — préciser'?(o.poster_details.other_style||'Autre'):o.poster_details.style)}${field('Format',o.poster_details.format)}${field('Orientation',o.poster_details.orientation)}${field('Titre',o.poster_details.title)}${field('Sous-titre',o.poster_details.subtitle)}${field('Couleurs',o.poster_details.colors)}${field('À faire apparaître',o.poster_details.elements_include,true)}${field('À éviter',o.poster_details.elements_avoid,true)}${field('Usage',o.poster_details.usage)}${field('Signature',o.poster_details.signature===false?'Non':'JLG discrète')}</div></div>`:''}
     </section>
 
     <section class="section">
