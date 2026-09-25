@@ -442,3 +442,15 @@ input,textarea,select{width:100%;border:1px solid #d4cdc1;border-radius:10px;bac
 .briefExtras>summary::-webkit-details-marker{display:none}.briefExtras>summary:after{content:"＋";color:#98702d;font-size:16px}.briefExtras[open]>summary:after{content:"−"}
 .briefExtras>summary small{margin-left:auto;color:#89959b;font-size:9px;font-weight:600}
 .briefExtrasGrid{padding:0 12px 12px!important;margin-top:0!important}
+
+/* ===== FINAL QA CREATIVE ===== */
+.posterPriceGrid span{font-size:12px!important;font-weight:800;color:#eef3f5!important}
+.posterPriceGrid small{font-size:10px!important;line-height:1.4!important}
+.posterNote{font-size:10.5px!important;line-height:1.55!important}
+.posterNote strong{color:#e6cb8a}
+.posterStyleChips span{font-size:10px!important}
+@media(max-width:760px){
+  .posterPriceGrid article{min-width:69vw!important}
+  .posterPriceGrid span{font-size:12px!important}.posterPriceGrid small{font-size:10px!important}
+  .clientNotifBtn{min-height:42px}
+}
