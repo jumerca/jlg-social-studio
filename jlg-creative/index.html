@@ -11,7 +11,9 @@
   <nav id="mainNav" aria-label="Navigation principale">
     <a href="#packs">Offres</a>
     <a href="#process">Comment ça marche</a>
+    <a href="#posters">Affiches</a>
     <a href="#custom">Sur mesure</a>
+    <button class="clientNotifBtn" id="clientNotifBtn" type="button">Suivi <b id="clientNotifBadge" hidden>0</b></button>
     <button class="navInstall" data-install-app>Installer l’app</button>
   </nav>
   <button id="menuBtn" class="menu" type="button" aria-label="Ouvrir le menu" aria-controls="mainNav" aria-expanded="false">☰</button>
@@ -65,7 +67,28 @@
     </details>
   </section>
 
-  <section id="custom" class="actionStrip">
+  
+<section id="posters" class="posterSection">
+  <div class="posterIntro">
+    <div><p class="kicker">AFFICHES PERSONNALISÉES</p><h2>Votre ville, votre sport, votre idée… en affiche.</h2><p>Choisissez le thème et l’ambiance. JLG crée une affiche numérique HD personnalisée, signée discrètement, prête à imprimer chez le prestataire de votre choix.</p></div>
+    <button class="primary" data-poster-order>Créer ma demande →</button>
+  </div>
+  <div class="posterPriceGrid">
+    <article><span>Ville · paysage · patrimoine · nature</span><strong>29 €</strong><small>1 affiche numérique HD</small></article>
+    <article><span>Sport · humour · événement</span><strong>35 €</strong><small>1 affiche numérique HD</small></article>
+    <article><span>Entreprise · activité · lieu</span><strong>39 €</strong><small>1 affiche numérique HD</small></article>
+    <article><span>Série cohérente</span><strong>79 €</strong><small>3 affiches numériques HD</small></article>
+  </div>
+  <div class="posterStyles">
+    <strong>10 styles proposés</strong>
+    <div class="posterStyleChips">
+      <span>Vintage minimaliste</span><span>Rétro touristique</span><span>Illustration moderne</span><span>Élégant / premium</span><span>Humoristique</span><span>Sport dynamique</span><span>Nature / paysage</span><span>Architecture / patrimoine</span><span>Pop / coloré</span><span>Épuré / contemporain</span><span>+ Autre à préciser</span>
+    </div>
+  </div>
+  <p class="posterNote">Inclus : fichier numérique HD + 1 série de corrections groupées + signature JLG discrète. Impression et expédition non incluses.</p>
+</section>
+
+<section id="custom" class="actionStrip">
   <div><p class="kicker">BESOIN PARTICULIER ?</p><strong>Votre projet ne rentre pas dans un pack ?</strong><span>Décrivez-le, JLG vous répond avec une proposition adaptée.</span></div>
   <button class="primary" data-custom>Projet sur mesure →</button>
 </section>
