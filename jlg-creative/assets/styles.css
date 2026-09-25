@@ -465,3 +465,5 @@ input,textarea,select{width:100%;border:1px solid #d4cdc1;border-radius:10px;bac
 .professionalConfirm input{width:18px!important;height:18px!important;margin-top:2px;box-shadow:none!important}
 .professionalConfirm span{font-size:12px}
 .businessScopeNote{margin:12px 0 0;padding:10px 12px;border-radius:10px;background:#f3ead8;color:#53636c;font-size:12px;line-height:1.45}
+
+.businessScopeHero{max-width:720px;margin:14px 0 0;padding:10px 12px;border-left:3px solid var(--gold);background:rgba(255,255,255,.55);border-radius:0 10px 10px 0;color:#52646f;font-size:12px;line-height:1.5}.businessScopeHero strong{color:var(--ink)}
