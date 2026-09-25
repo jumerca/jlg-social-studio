@@ -41,10 +41,121 @@ function renderDashboard(v){
   <div class="metrics"><article class="metric"><span>Nouvelles demandes</span><strong>${newOrders}</strong><small>À qualifier</small></article><article class="metric"><span>Projets actifs</span><strong>${activeProjects}</strong><small>${openTasks} tâche${openTasks!==1?'s':''} ouverte${openTasks!==1?'s':''}</small></article><article class="metric"><span>Encaissé</span><strong>${money(paid)}</strong><small>${accepted} devis accepté${accepted!==1?'s':''}</small></article><article class="metric"><span>À encaisser</span><strong>${money(outstanding)}</strong><small>${overdue} facture${overdue!==1?'s':''} échue${overdue!==1?'s':''}</small></article></div>
   <div class="dashGrid"><section class="dashPanel"><h3>Dernières demandes</h3><div class="dashList">${recentOrders.length?recentOrders.map(o=>`<div><span><strong>${esc(o.pack_name)}</strong><span>${esc(o.name)}${o.company?' · '+esc(o.company):''}</span></span><b>${esc(o.status)}</b></div>`).join(''):'<div><span>Aucune demande pour le moment.</span></div>'}</div></section><section class="dashPanel"><h3>Projets en cours</h3><div class="dashList">${activeList.length?activeList.map(p=>`<div><span><strong>${esc(p.name)}</strong><span>${clientName(p.client_id)} · ${esc(p.status)}</span><div class="dashProgress"><i style="width:${Math.max(0,Math.min(100,Number(p.progress||0)))}%"></i></div></span><b>${Number(p.progress||0)}%</b></div>`).join(''):'<div><span>Aucun projet actif.</span></div>'}</div></section><section class="dashPanel"><h3>Priorités production</h3><div class="dashList">${priority.length?priority.map(t=>`<div><span><strong>${esc(t.title)}</strong><span>${projectName(t.project_id)} · ${esc(t.category)}</span></span><b>${esc(t.due_label||'À faire')}</b></div>`).join(''):'<div><span>Aucune tâche haute priorité.</span></div>'}</div></section><section class="dashPanel"><h3>Finance à surveiller</h3><div class="dashList"><div><span><strong>À encaisser</strong><span>Total restant sur les factures</span></span><b>${money(outstanding)}</b></div><div><span><strong>Factures échues</strong><span>Relances à prévoir</span></span><b>${overdue}</b></div><div><span><strong>Devis acceptés</strong><span>Opportunités confirmées</span></span><b>${accepted}</b></div></div></section></div>`;
 }
-function renderOrders(v){const fresh=data.orders.filter(o=>o.status==='Nouvelle').length;v.innerHTML=`<div class="studioIntro"><div><strong>Entrées clients</strong><p>Chaque demande publique arrive ici avant conversion en client et projet.</p></div><div><b>${fresh}</b><span>nouvelle${fresh>1?'s':''}</span></div></div><div class="orders">${data.orders.length?data.orders.map(o=>`<article class="orderRow"><button class="orderOpen" data-order="${o.id}" aria-label="Ouvrir ${esc(o.reference)}"><small>${esc(o.reference)}</small><strong>${esc(o.pack_name)}</strong><span>${esc(o.name)}${o.company?' · '+esc(o.company):''}</span><p>${esc(o.objective)}</p></button><div><small>Estimation</small><strong>${o.estimate?money(o.estimate):'Sur devis'}</strong></div><span class="status">${esc(o.status)}</span>${o.status!=='Convertie'?`<button class="primary" data-convert="${o.id}">Créer client + projet</button>`:'<b class="doneText">✓ Convertie</b>'}</article>`).join(''):empty('Aucune commande pour le moment.')}</div>`;document.querySelectorAll('[data-order]').forEach(b=>b.onclick=()=>orderDetail(byId(data.orders,b.dataset.order)));document.querySelectorAll('[data-convert]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='Conversion…';try{await api('convert-order',{method:'POST',body:JSON.stringify({id:b.dataset.convert})});toast('Client et projet créés.');await load()}catch(e){toast(e.message,true);b.disabled=false;b.textContent='Créer client + projet'}})}
-function orderDetail(o){if(!o)return;const options=(o.options||[]).map(x=>`<li>${esc(x.label)} <strong>+ ${money(x.price)}</strong></li>`).join('')||'<li>Aucune option</li>';modal(`<span class="eyebrow">${esc(o.reference)}</span>${esc(o.pack_name)}`,`<div class="detailGrid"><div><small>Statut</small><strong>${esc(o.status)}</strong></div><div><small>Estimation</small><strong>${o.estimate?money(o.estimate):'Sur devis'}</strong></div><div><small>Date souhaitée</small><strong>${esc(o.deadline||'Non précisée')}</strong></div><div><small>Budget annoncé</small><strong>${esc(o.budget||'Non précisé')}</strong></div></div><div class="adminColumns"><section><h3>Contact</h3><p><strong>${esc(o.name)}</strong>${o.company?'<br>'+esc(o.company):''}</p><p>${esc(o.email)}<br>${esc(o.phone||'Téléphone non renseigné')}<br>${esc(o.city||'Ville non renseignée')}</p><p>Préférence : ${esc(o.contact_preference||'Email')}</p></section><section><h3>Brief</h3><p><strong>Objectif</strong><br>${esc(o.objective)}</p>${o.style?`<p><strong>Style</strong><br>${esc(o.style)}</p>`:''}${o.notes?`<p><strong>Précisions</strong><br>${esc(o.notes)}</p>`:''}</section></div><section class="adminOptions"><h3>Options</h3><ul>${options}</ul></section>`,o.status!=='Convertie'?`<button class="primary" data-modal-convert="${o.id}">Créer client + projet</button>`:'');const btn=document.querySelector('[data-modal-convert]');if(btn)btn.onclick=async()=>{btn.disabled=true;try{await api('convert-order',{method:'POST',body:JSON.stringify({id:o.id})});document.querySelector('.overlay')?.remove();toast('Client et projet créés.');await load()}catch(e){toast(e.message,true);btn.disabled=false}}}
-function renderPacks(v){v.innerHTML=`<div class="studioIntro"><div><strong>Catalogue client</strong><p>Ce sont exactement les offres visibles publiquement.</p></div><div><b>${data.packs.length}</b><span>packs</span></div></div><div class="adminPacks">${data.packs.map(p=>`<article><div class="packTop"><span class="pill">${esc(p.category)}</span><span class="delay">${esc(p.delay)}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><div class="price">${money(p.price)}</div><h4>Livrables</h4>${(p.deliverables||[]).map(x=>`<div class="deliverable">✓ ${esc(x)}</div>`).join('')}<div class="cardActions"><button class="secondary" data-editpack="${p.id}">Modifier</button><button class="dangerBtn" data-deletepack="${p.id}">Supprimer</button></div></article>`).join('')}</div>`;document.querySelectorAll('[data-editpack]').forEach(b=>b.onclick=()=>editPack(byId(data.packs,b.dataset.editpack)));document.querySelectorAll('[data-deletepack]').forEach(b=>b.onclick=()=>deletePack(byId(data.packs,b.dataset.deletepack)))}
-function editPack(p){const isNew=!p;const o=modal(isNew?'Créer un pack':'Modifier le pack',`<div class="formGrid"><label>Nom *<input name="name" value="${esc(p?.name||'')}"></label><label>Catégorie<input name="category" value="${esc(p?.category||'')}"></label><label>Prix indicatif (€)<input name="price" type="number" min="0" value="${Number(p?.price||0)}"></label><label>Délai<input name="delay" value="${esc(p?.delay||'')}"></label><label class="wide">Description<textarea name="description" rows="4">${esc(p?.description||'')}</textarea></label><label class="wide">Livrables · un par ligne<textarea name="deliverables" rows="7">${esc((p?.deliverables||[]).join('\n'))}</textarea></label></div>`,`<button class="primary" id="savePack">Enregistrer</button>`);o.querySelector('#savePack').onclick=async()=>{const q=n=>o.querySelector(`[name="${n}"]`).value;const payload={name:q('name'),category:q('category'),price:Number(q('price')),delay:q('delay'),description:q('description'),deliverables:q('deliverables').split('\n').map(x=>x.trim()).filter(Boolean),active:true};if(!payload.name.trim())return toast('Le nom est obligatoire.',true);try{await api('pack',{method:isNew?'POST':'PATCH',body:JSON.stringify(isNew?payload:{id:p.id,...payload})});o.remove();toast('Pack enregistré.');await load()}catch(e){toast(e.message,true)}}}
+
+function orderPack(o){return (data?.packs||[]).find(p=>p.id===o.pack_id)||(data?.packs||[]).find(p=>p.name===o.pack_name)||null}
+function briefScore(o){
+  const fields=[o.objective,o.target_audience,o.key_message,o.requested_supports,o.existing_assets,o.content_status,o.style,o.inspiration,o.constraints,o.budget,o.deadline,o.notes];
+  const filled=fields.filter(v=>String(v||'').trim()).length;
+  return Math.round((filled/fields.length)*100);
+}
+function cleanLine(label,value){return String(value||'').trim()?label+' : '+String(value).trim():''}
+function buildBriefText(o){
+  const p=orderPack(o);
+  const options=(o.options||[]).map(x=>`- ${x.label} (+ ${money(x.price)})`).join('\n')||'- Aucune option';
+  const included=(p?.deliverables||[]).map(x=>'- '+x).join('\n')||'- À confirmer au devis';
+  const excluded=(p?.not_included||[]).map(x=>'- '+x).join('\n')||'- À confirmer au devis';
+  return [
+    `DEMANDE ${o.reference}`,
+    `Date : ${new Date(o.created_at).toLocaleString('fr-FR')}`,
+    `Statut : ${o.status}`,
+    '',
+    'CLIENT',
+    cleanLine('Nom',o.name),cleanLine('Structure',o.company),cleanLine('E-mail',o.email),cleanLine('Téléphone',o.phone),cleanLine('Ville',o.city),cleanLine('Contact préféré',o.contact_preference),
+    '',
+    'OFFRE',
+    cleanLine('Offre',o.pack_name),cleanLine('Prix de base',o.pack_price?money(o.pack_price):''),cleanLine('Estimation',o.estimate?money(o.estimate):''),cleanLine('Délai souhaité',o.deadline),cleanLine('Budget client',o.budget),
+    '',
+    'BRIEF',
+    cleanLine('Objectif',o.objective),cleanLine('Public cible',o.target_audience),cleanLine('Message principal',o.key_message),cleanLine('Supports souhaités',o.requested_supports),cleanLine('Éléments disponibles',o.existing_assets),cleanLine('État des contenus',o.content_status),cleanLine('Style / ambiance',o.style),cleanLine('Inspirations',o.inspiration),cleanLine('Contraintes / à éviter',o.constraints),cleanLine('Autres précisions',o.notes),
+    '',
+    'OPTIONS',options,
+    '',
+    'PÉRIMÈTRE DE L’OFFRE — INCLUS',included,
+    '',
+    'LIVRAISON',p?.delivery_format||'À confirmer au devis',
+    '',
+    'CORRECTIONS',p?.revisions||'À confirmer au devis',
+    '',
+    'NON INCLUS',excluded,
+    '',
+    'RÈGLE JLG',
+    'La prestation est terminée à la livraison. Toute nouvelle demande ou mise à jour ultérieure fait l’objet d’un nouveau devis.'
+  ].filter(x=>x!==undefined&&x!==null&&x!=='').join('\n');
+}
+async function copyOrderBrief(o){try{await navigator.clipboard.writeText(buildBriefText(o));toast('Récapitulatif copié.')}catch(e){toast('Copie impossible.',true)}}
+function printOrderBrief(o){
+  const text=esc(buildBriefText(o)).replace(/\n/g,'<br>');
+  const w=window.open('','_blank','width=900,height=800');
+  if(!w)return toast('Autorisez les fenêtres pour imprimer.',true);
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(o.reference)} — Brief client</title><style>body{font-family:Arial,sans-serif;max-width:820px;margin:35px auto;padding:0 20px;color:#172b38;line-height:1.5}h1{font-family:Georgia,serif} .box{border:1px solid #ddd;padding:22px;border-radius:14px;white-space:normal} @media print{body{margin:0}.noPrint{display:none}}</style></head><body><h1>JLG Studio · ${esc(o.reference)}</h1><div class="box">${text}</div><script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+
+function renderOrders(v){
+  const fresh=data.orders.filter(o=>o.status==='Nouvelle').length;
+  const complete=data.orders.filter(o=>briefScore(o)>=60).length;
+  v.innerHTML=`<div class="studioIntro requestIntro"><div><strong>Demandes clients</strong><p>Chaque demande devient un brief exploitable pour préparer le devis sans rechercher les informations ailleurs.</p></div><div class="requestIntroStats"><span><b>${fresh}</b><small>nouvelles</small></span><span><b>${complete}</b><small>briefs ≥ 60%</small></span></div></div><div class="orders">${data.orders.length?data.orders.map(o=>{const score=briefScore(o);return `<article class="orderRow orderRowV2"><button class="orderOpen" data-order="${o.id}" aria-label="Ouvrir ${esc(o.reference)}"><small>${esc(o.reference)} · ${new Date(o.created_at).toLocaleDateString('fr-FR')}</small><strong>${esc(o.pack_name)}</strong><span>${esc(o.name)}${o.company?' · '+esc(o.company):''}</span><p>${esc(o.objective)}</p></button><div class="briefScore"><small>Brief</small><strong>${score}%</strong><i><b style="width:${score}%"></b></i></div><span class="status">${esc(o.status)}</span><div class="orderQuickActions"><button class="secondary mini" data-copy-order="${o.id}">Copier</button><button class="secondary mini" data-print-order="${o.id}">PDF</button>${o.status!=='Convertie'? `<button class="primary mini" data-convert="${o.id}">Convertir</button>`:'<b class="doneText">✓ Projet créé</b>'}</div></article>`}).join(''):empty('Aucune demande pour le moment.')}</div>`;
+  document.querySelectorAll('[data-order]').forEach(b=>b.onclick=()=>orderDetail(byId(data.orders,b.dataset.order)));
+  document.querySelectorAll('[data-copy-order]').forEach(b=>b.onclick=()=>copyOrderBrief(byId(data.orders,b.dataset.copyOrder)));
+  document.querySelectorAll('[data-print-order]').forEach(b=>b.onclick=()=>printOrderBrief(byId(data.orders,b.dataset.printOrder)));
+  document.querySelectorAll('[data-convert]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='Conversion…';try{await api('convert-order',{method:'POST',body:JSON.stringify({id:b.dataset.convert})});toast('Client et projet créés avec le brief complet.');await load()}catch(e){toast(e.message,true);b.disabled=false;b.textContent='Convertir'}});
+}
+function orderDetail(o){
+  if(!o)return;
+  const p=orderPack(o),score=briefScore(o);
+  const options=(o.options||[]).map(x=>`<div class="briefLine"><span>${esc(x.label)}</span><strong>+ ${money(x.price)}</strong></div>`).join('')||'<p class="muted">Aucune option.</p>';
+  const rows=(arr=[],type='yes')=>arr.length?`<div class="scopeList ${type}">${arr.map(x=>`<div><b>${type==='no'?'×':'✓'}</b><span>${esc(x)}</span></div>`).join('')}</div>`:'<p class="muted">À confirmer au devis.</p>';
+  const field=(label,value)=>String(value||'').trim()?`<div class="briefField"><small>${label}</small><strong>${esc(value)}</strong></div>`:'';
+  const actions=`<button class="secondary" data-modal-copy="${o.id}">Copier le brief</button><button class="secondary" data-modal-print="${o.id}">Imprimer / PDF</button>${o.status!=='Convertie'?`<button class="primary" data-modal-convert="${o.id}">Créer client + projet</button>`:''}`;
+  const ov=modal(`<span class="eyebrow">${esc(o.reference)}</span>${esc(o.pack_name)}`,
+  `<section class="requestHero"><div><span class="status">${esc(o.status)}</span><h3>${esc(o.name)}${o.company?' · '+esc(o.company):''}</h3><p>${esc(o.objective)}</p></div><div class="requestScore"><small>BRIEF COMPLET</small><strong>${score}%</strong><i><b style="width:${score}%"></b></i></div></section>
+  <div class="requestKpis"><div><small>Estimation</small><strong>${o.estimate?money(o.estimate):'Sur devis'}</strong></div><div><small>Date souhaitée</small><strong>${esc(o.deadline||'Non précisée')}</strong></div><div><small>Budget client</small><strong>${esc(o.budget||'Non précisé')}</strong></div><div><small>Contact</small><strong>${esc(o.contact_preference||'Email')}</strong></div></div>
+  <div class="requestColumns">
+    <section class="requestSection"><h3>Contact</h3><div class="briefFields">${field('Nom',o.name)}${field('Structure',o.company)}${field('E-mail',o.email)}${field('Téléphone',o.phone)}${field('Ville',o.city)}</div></section>
+    <section class="requestSection requestBriefMain"><h3>Brief client</h3><div class="briefFields">${field('Objectif',o.objective)}${field('Public cible',o.target_audience)}${field('Message principal',o.key_message)}${field('Supports souhaités',o.requested_supports)}${field('Éléments disponibles',o.existing_assets)}${field('État des contenus',o.content_status)}${field('Style / ambiance',o.style)}${field('Inspirations',o.inspiration)}${field('Contraintes / à éviter',o.constraints)}${field('Autres précisions',o.notes)}</div></section>
+  </div>
+  <section class="requestSection"><h3>Options demandées</h3>${options}</section>
+  <section class="requestScope"><div><h3>Ce que le client a choisi</h3>${rows(p?.deliverables||[],'yes')}</div><div><h3>Ce qui n’est pas inclus</h3>${rows(p?.not_included||[],'no')}</div></section>
+  <section class="requestSection scopeMeta"><div><small>Livraison prévue</small><p>${esc(p?.delivery_format||'À confirmer dans le devis.')}</p></div><div><small>Corrections prévues</small><p>${esc(p?.revisions||'À confirmer dans le devis.')}</p></div></section>
+  <section class="nextActions"><h3>Prochaines actions conseillées</h3><div><span>1</span><p>Vérifier les éléments manquants du brief.</p></div><div><span>2</span><p>Confirmer le périmètre et les livrables avec le client.</p></div><div><span>3</span><p>Préparer le devis avec délai et conditions.</p></div></section>`,actions);
+  ov.querySelector('[data-modal-copy]')?.addEventListener('click',()=>copyOrderBrief(o));
+  ov.querySelector('[data-modal-print]')?.addEventListener('click',()=>printOrderBrief(o));
+  const btn=ov.querySelector('[data-modal-convert]');
+  if(btn)btn.onclick=async()=>{btn.disabled=true;try{await api('convert-order',{method:'POST',body:JSON.stringify({id:o.id})});ov.remove();toast('Client et projet créés avec le brief complet.');await load()}catch(e){toast(e.message,true);btn.disabled=false}};
+}
+function renderPacks(v){
+  const featured=(data.packs||[]).filter(p=>p.featured).length;
+  v.innerHTML=`<div class="studioIntro"><div><strong>Catalogue JLG</strong><p>Le catalogue public est synchronisé ici. Les offres phares apparaissent en premier côté client.</p></div><div class="requestIntroStats"><span><b>${data.packs.length}</b><small>offres</small></span><span><b>${featured}</b><small>phares</small></span></div></div>
+  <div class="adminPacks adminPacksV2">${data.packs.map(p=>`<article><div class="packTop"><span class="pill">${esc(p.category)}</span><span class="delay">${esc(p.delay)}</span></div><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p><div class="packMiniMeta"><span><small>Prix</small><strong>${money(p.price)}</strong></span><span><small>Livrables</small><strong>${(p.deliverables||[]).length}</strong></span><span><small>Statut</small><strong>${p.featured?'★ Phare':'Standard'}</strong></span></div><div class="packPreview">${(p.deliverables||[]).slice(0,3).map(x=>`<span>✓ ${esc(x)}</span>`).join('')}${(p.deliverables||[]).length>3?`<small>+${p.deliverables.length-3} autres éléments</small>`:''}</div><div class="cardActions"><button class="secondary" data-editpack="${p.id}">Modifier l’offre</button><button class="dangerBtn" data-deletepack="${p.id}">Supprimer</button></div></article>`).join('')}</div>`;
+  document.querySelectorAll('[data-editpack]').forEach(b=>b.onclick=()=>editPack(byId(data.packs,b.dataset.editpack)));
+  document.querySelectorAll('[data-deletepack]').forEach(b=>b.onclick=()=>deletePack(byId(data.packs,b.dataset.deletepack)));
+}
+function editPack(p){
+  const isNew=!p;
+  const o=modal(isNew?'Créer une offre':'Modifier l’offre',`<div class="formGrid packEditGrid">
+  <label>Nom *<input name="name" value="${esc(p?.name||'')}"></label>
+  <label>Catégorie<input name="category" value="${esc(p?.category||'')}"></label>
+  <label>Prix indicatif (€)<input name="price" type="number" min="0" value="${Number(p?.price||0)}"></label>
+  <label>Délai<input name="delay" value="${esc(p?.delay||'')}"></label>
+  <label class="wide">Description<textarea name="description" rows="3">${esc(p?.description||'')}</textarea></label>
+  <label class="wide">Pour qui ?<textarea name="ideal_for" rows="3">${esc(p?.ideal_for||'')}</textarea></label>
+  <label class="wide">Livrables · un par ligne<textarea name="deliverables" rows="6">${esc((p?.deliverables||[]).join('\n'))}</textarea></label>
+  <label class="wide">Ce que le client reçoit<textarea name="delivery_format" rows="3">${esc(p?.delivery_format||'')}</textarea></label>
+  <label class="wide">Déroulement · une étape par ligne<textarea name="process" rows="5">${esc((p?.process||[]).join('\n'))}</textarea></label>
+  <label class="wide">Ce qui n’est pas inclus · un par ligne<textarea name="not_included" rows="5">${esc((p?.not_included||[]).join('\n'))}</textarea></label>
+  <label class="wide">Règle de corrections<textarea name="revisions" rows="2">${esc(p?.revisions||'')}</textarea></label>
+  <label>Offre phare<select name="featured"><option value="false" ${!p?.featured?'selected':''}>Non</option><option value="true" ${p?.featured?'selected':''}>Oui</option></select></label>
+  <label>Ordre phare<input name="featured_order" type="number" value="${Number(p?.featured_order||100)}"></label>
+  </div>`,`<button class="primary" id="savePack">Enregistrer l’offre</button>`);
+  o.querySelector('#savePack').onclick=async()=>{
+    const q=n=>o.querySelector(`[name="${n}"]`).value;
+    const lines=n=>q(n).split('\n').map(x=>x.trim()).filter(Boolean);
+    const payload={name:q('name'),category:q('category'),price:Number(q('price')),delay:q('delay'),description:q('description'),ideal_for:q('ideal_for'),deliverables:lines('deliverables'),delivery_format:q('delivery_format'),process:lines('process'),not_included:lines('not_included'),revisions:q('revisions'),featured:q('featured')==='true',featured_order:Number(q('featured_order')||100),active:true};
+    if(!payload.name.trim())return toast('Le nom est obligatoire.',true);
+    try{await api('pack',{method:isNew?'POST':'PATCH',body:JSON.stringify(isNew?payload:{id:p.id,...payload})});o.remove();toast('Offre enregistrée et synchronisée.');await load()}catch(e){toast(e.message,true)}
+  }
+}
+
 async function deletePack(p){if(!p||!confirm(`Supprimer le pack « ${p.name} » ?`))return;try{await api('pack',{method:'DELETE',body:JSON.stringify({id:p.id})});toast('Pack supprimé.');await load()}catch(e){toast(e.message,true)}}
 function renderClients(v){v.innerHTML=`<div class="simpleList richList">${data.clients.length?data.clients.map(c=>`<article><div><strong>${esc(c.name)}</strong><small>${esc(c.activity||'Activité non précisée')}</small></div><span>${esc(c.email||'—')}</span><span>${esc(c.phone||'—')}</span><span class="status">${esc(c.status||'Actif')}</span><div class="listActions"><button class="secondary" data-editclient="${c.id}">Modifier</button><button class="dangerBtn" data-deleteclient="${c.id}">Supprimer</button></div></article>`).join(''):empty('Aucun client.')}</div>`;document.querySelectorAll('[data-editclient]').forEach(b=>b.onclick=()=>editClient(byId(data.clients,b.dataset.editclient)));document.querySelectorAll('[data-deleteclient]').forEach(b=>b.onclick=()=>removeRecord('clients',byId(data.clients,b.dataset.deleteclient),'client'))}
 function editClient(c){const isNew=!c;const o=modal(isNew?'Nouveau client':'Modifier le client',`<div class="formGrid"><label>Nom / structure *<input name="name" value="${esc(c?.name||'')}"></label><label>Activité<input name="activity" value="${esc(c?.activity||'')}"></label><label>E-mail<input name="email" type="email" value="${esc(c?.email||'')}"></label><label>Téléphone<input name="phone" value="${esc(c?.phone||'')}"></label><label>Ville<input name="city" value="${esc(c?.city||'')}"></label><label>Statut<select name="status"><option>Actif</option><option ${c?.status==='Prospect'?'selected':''}>Prospect</option><option ${c?.status==='Inactif'?'selected':''}>Inactif</option></select></label><label class="wide">Notes<textarea name="notes" rows="5">${esc(c?.notes||'')}</textarea></label></div>`,`<button class="primary" id="save">Enregistrer</button>`);o.querySelector('#save').onclick=()=>saveForm(o,'clients',c,['name','activity','email','phone','city','status','notes'])}
