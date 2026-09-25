@@ -57,7 +57,7 @@ const browser=await chromium.launch({headless:true});
  await check('Creative offer detail modal complete',async()=>{await page.locator('.featuredCard [data-detail]').first().click();const t=await page.locator('.modal').innerText();for(const x of ['Pour qui','Ce qui est inclus','Ce que vous recevez','Comment ça se passe','Ce qui n’est pas inclus','Corrections','Prestation terminée à la livraison'])assert(t.includes(x),'Missing '+x);await page.locator('.modal .close').click()});
  await check('Creative standard order validation and wizard',async()=>{await page.locator('.featuredCard [data-order]').first().click();await page.locator('#next').click();assert(/Nom et e-mail/i.test(await page.locator('#toast').innerText()),'validation');await page.locator('[name=name]').fill('Test QA');await page.locator('[name=email]').fill('qa@example.com');await page.locator('#next').click();assert((await page.locator('.orderModal').innerText()).includes('Votre besoin'),'step2');await page.locator('.orderModal .close').click()});
  await check('Creative poster prices exact',async()=>{const t=await page.locator('#posters').innerText();for(const x of ['4,90 €','6,90 €','8,90 €','11,90 €'])assert(t.includes(x),x);for(const x of ['29 €','35 €','39 €','79 €'])assert(!t.includes(x),'old '+x)});
- await check('Creative poster wizard options and A5 total',async()=>{await page.locator('[data-poster-order]').click();await page.locator('[name=name]').fill('Test QA');await page.locator('[name=email]').fill('qa@example.com');await page.locator('#next').click();assert(await page.locator('[name=format] option').count()===4,'formats');assert(await page.locator('[name=orientation] option').count()===2,'orientation');assert(await page.locator('[name=style] option').count()===11,'styles');await page.locator('[name=subject]').fill('Toulon');await page.locator('[name=format]').selectOption('A5');await page.locator('#next').click();const t=await page.locator('.posterSummary').innerText();assert(t.includes('4,90 €'),'price');assert(t.includes('A5'),'format');await page.locator('.orderModal .close').click()});
+ await check('Creative poster wizard options and A5 total',async()=>{await page.locator('[data-poster-order]').click();await page.locator('[name=name]').fill('Test QA');await page.locator('[name=email]').fill('qa@example.com');await page.locator('#next').click();assert(await page.locator('[name=format] option').count()===4,'formats');assert(await page.locator('[name=orientation] option').count()===2,'orientation');assert(await page.locator('[name=style] option').count()===11,'styles');await page.locator('[name=subject]').fill('Toulon');await page.locator('[name=format]').selectOption('A5');await page.locator('#next').click();const t=await page.locator('.posterSummary').innerText();assert(t.replace(/\u00a0/g,' ').includes('4,90 €'),'price');assert(t.includes('A5'),'format');await page.locator('.orderModal .close').click()});
  await check('Creative follow-up empty dialog works',async()=>{await page.locator('#clientNotifBtn').click();assert((await page.locator('.trackModal').innerText()).includes('Notifications JLG Creative'),'heading');await page.locator('#trackClose').click()});
  await check('Creative desktop no horizontal overflow',async()=>{const v=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);assert(v[0]<=v[1]+2,v.join('/'))});
  await check('Creative desktop no runtime errors',async()=>errors());
@@ -70,8 +70,10 @@ const browser=await chromium.launch({headless:true});
  await context.addInitScript(()=>{
    const now=Date.now();
    localStorage.setItem('jlg_creative_requests_v2',JSON.stringify([{token:'qa-token',reference:'CMD-QA-NOTIF',packName:'Pack Essentiel',createdAt:new Date(now-60000).toISOString(),lastSeenAt:new Date(now-60000).toISOString(),lastNotifiedAt:new Date(now-60000).toISOString(),status:'Nouvelle',updates:[]}]));
-   class QANotification{static permission='granted';static requestPermission=async()=> 'granted';constructor(title,opts){window.__qaNotifs=(window.__qaNotifs||[]);window.__qaNotifs.push({title,body:opts?.body})}}
+   window.__qaNotifs=[];
+   class QANotification{static permission='granted';static requestPermission=async()=> 'granted';constructor(title,opts){window.__qaNotifs.push({title,body:opts?.body})}}
    Object.defineProperty(window,'Notification',{value:QANotification,configurable:true});
+   if('ServiceWorkerRegistration' in window){ServiceWorkerRegistration.prototype.showNotification=async function(title,opts){window.__qaNotifs.push({title,body:opts?.body})}}
  });
  const page=await context.newPage();
  await page.route(API+'?action=request-status&token=qa-token',async route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({order:{reference:'CMD-QA-NOTIF',status:'Accusée',pack_name:'Pack Essentiel'},updates:[{id:'u1',kind:'created',title:'Demande envoyée',message:'Votre demande a été transmise.',created_at:new Date(Date.now()-50000).toISOString()},{id:'u2',kind:'acknowledged',title:'Demande bien reçue',message:'J’accuse réception de votre demande.',created_at:new Date().toISOString()}]})}));
@@ -118,8 +120,10 @@ const browser=await chromium.launch({headless:true});
  await context.addInitScript(()=>{
    sessionStorage.setItem('jlg_token','qa-token');
    localStorage.setItem('jlg_studio_seen_orders_v1',JSON.stringify(['old-order']));
-   class QANotification{static permission='granted';static requestPermission=async()=> 'granted';constructor(title,opts){window.__qaStudioNotifs=(window.__qaStudioNotifs||[]);window.__qaStudioNotifs.push({title,body:opts?.body})}}
+   window.__qaStudioNotifs=[];
+   class QANotification{static permission='granted';static requestPermission=async()=> 'granted';constructor(title,opts){window.__qaStudioNotifs.push({title,body:opts?.body})}}
    Object.defineProperty(window,'Notification',{value:QANotification,configurable:true});
+   if('ServiceWorkerRegistration' in window){ServiceWorkerRegistration.prototype.showNotification=async function(title,opts){window.__qaStudioNotifs.push({title,body:opts?.body})}}
  });
  const calls=[];
  const page=await context.newPage(); const errors=await watchErrors(page,'Studio authenticated');
@@ -138,14 +142,14 @@ const browser=await chromium.launch({headless:true});
  await check('Studio authenticated loads dashboard',async()=>{assert(await page.locator('[data-view=dashboard]').count()===1,'nav');assert((await page.locator('#viewRoot').innerText()).includes('Tout ce qui mérite ton attention'),'dashboard')});
  await check('Studio new-order badge shows count',async()=>{const b=page.locator('#studioNotifCount');assert(!(await b.isHidden()),'hidden');assert(await b.innerText()==='1','count '+await b.innerText())});
  await check('Studio system-notification logic fires for unseen new order',async()=>{const n=await page.evaluate(()=>window.__qaStudioNotifs||[]);assert(n.some(x=>x.title==='Nouvelle demande JLG'),'not fired')});
- const views=[['orders','Commandes & demandes'],['packs','Toutes mes offres'],['clients','Clients'],['projects','Projets'],['tasks','Production'],['quotes','Devis'],['invoices','Finance'],['settings','Réglages'],['dashboard','Tableau de bord']];
+ const views=[['orders','Demandes clients'],['packs','Toutes mes offres'],['clients','Clients'],['projects','Projets'],['tasks','Production'],['quotes','Devis'],['invoices','Finance'],['settings','Réglages'],['dashboard','Tableau de bord']];
  for(const [key,title] of views){
    await check('Studio tab works: '+title,async()=>{await page.locator('[data-view='+key+']').click();await page.waitForTimeout(30);assert((await page.locator('.studioTop h1').innerText())===title,'title mismatch');assert(await page.locator('#viewRoot').count()===1,'root')});
  }
  await page.locator('[data-view=orders]').click();
  await check('Studio request detail opens with full brief',async()=>{await page.locator('[data-order=o1]').click();const t=await page.locator('.adminModal').innerText();for(const x of ['Brief client','Périmètre','Prochaines actions'])assert(t.includes(x),'missing '+x);await page.locator('.adminModal .close').click()});
  await check('Studio poster request detail contains poster specifics',async()=>{await page.locator('[data-order=o2]').click();const t=await page.locator('.adminModal').innerText();assert(t.includes('Affiche personnalisée'),'poster section');assert(t.includes('A4'),'format');await page.locator('.adminModal .close').click()});
- await check('Studio acknowledgement button opens and sends action',async()=>{await page.locator('[data-ack-order=o1]').click();assert((await page.locator('.adminModal').innerText()).includes('Message au client'),'modal');await page.locator('#ackSend').click();await page.waitForTimeout(50);assert(calls.some(x=>x.action==='acknowledge-order'),'no API call')});
+ await check('Studio acknowledgement button opens and sends action',async()=>{await page.locator('[data-ack-order=o1]').click();assert((await page.locator('.adminModal').innerText()).includes('Message au client'),'modal');await page.locator('#ackSend').click();await page.locator('.overlay').waitFor({state:'detached'});assert(calls.some(x=>x.action==='acknowledge-order'),'no API call')});
  await page.locator('[data-view=packs]').click();
  await check('Studio offers directory has 10 offers, search and edit work',async()=>{assert(await page.locator('.offerMemo').count()===10,'offers');await page.locator('#offerSearch').fill('Hôtel');const visible=await page.locator('.offerMemo:visible').count();assert(visible===1,'search visible '+visible);await page.locator('#offerSearch').fill('');await page.locator('[data-editpack=p1]').click();assert((await page.locator('.adminModal').innerText()).includes('Ce qui n’est pas inclus'),'edit fields');await page.locator('.adminModal .close').click()});
  await page.locator('[data-view=clients]').click();
@@ -187,6 +191,35 @@ const browser=await chromium.launch({headless:true});
  await check('Studio mobile key controls >=38px',async()=>{for(const sel of ['#refresh','#studioNotifToggle','[data-view=orders]']){const x=page.locator(sel);if(await x.isVisible()){const b=await x.boundingBox();assert(b?.height>=38,sel+' '+b?.height)}}});
  await check('Studio mobile authenticated no runtime errors',async()=>errors());
  await context.close();
+}
+
+
+
+// CLIENT PORTAL WITH MOCKED API
+{
+ const page=await browser.newPage({viewport:{width:1200,height:900}});
+ const errors=await watchErrors(page,'Client portal');
+ const calls=[];
+ const portalData={
+   project:{id:'pr1',name:'Projet QA',client_id:'c1',progress:55,status:'En cours'},
+   client:{id:'c1',name:'Client QA'},
+   validations:[{id:'v1',title:'Flyer V1',version:'V1',status:'À valider',url:'https://example.com/flyer.pdf',comment:''}],
+   quotes:[{id:'q1',reference:'DEV-QA-001',status:'Envoyé',total:349}],
+   invoices:[{id:'i1',reference:'FAC-QA-001',status:'Envoyée',total:349,paid_amount:100,due_date:'2026-10-20'}],
+   deliveries:[{id:'d1',title:'Livraison finale',version:'V1',status:'Disponible',url:'https://example.com/final.zip',delivery_date:'2026-10-10'}]
+ };
+ await page.route(API+'**',async route=>{
+   const u=new URL(route.request().url());const a=u.searchParams.get('action');calls.push({action:a,method:route.request().method(),body:route.request().postData()});
+   const body=a==='portal'?portalData:{updated:true,status:a==='portal-quote'?'Accepté':'Validé'};
+   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(body)});
+ });
+ await check('Client portal loads all four business sections',async()=>{const r=await page.goto(CREATIVE+'client.html?token=qa-review',{waitUntil:'networkidle'});assert(r?.ok(),'HTTP');const t=await page.locator('body').innerText();for(const x of ['Validations','Devis','Factures','Livraisons'])assert(t.includes(x),'missing '+x)});
+ await check('Client portal progress and private status visible',async()=>{const t=await page.locator('.clientHero').innerText();assert(t.includes('55%'),'progress');assert(t.includes('ESPACE CLIENT PRIVÉ'),'private')});
+ await check('Client validation action calls API',async()=>{page.once('dialog',d=>d.accept());await page.locator('[data-validation=v1][data-status="Validé"]').click();await page.waitForTimeout(80);assert(calls.some(x=>x.action==='portal-validation'&&x.method==='POST'),'no validation call')});
+ await check('Client quote acceptance calls API',async()=>{page.once('dialog',d=>d.accept());await page.locator('[data-quote=q1][data-qstatus="Accepté"]').click();await page.waitForTimeout(80);assert(calls.some(x=>x.action==='portal-quote'&&x.method==='POST'),'no quote call')});
+ await check('Client portal external delivery links are safe and target blank',async()=>{const a=page.locator('a[href*="example.com"]').first();assert(await a.getAttribute('target')==='_blank','target');assert((await a.getAttribute('rel')||'').includes('noopener'),'noopener')});
+ await check('Client portal no runtime errors',async()=>errors());
+ await page.close();
 }
 
 await browser.close();
