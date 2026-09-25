@@ -29,8 +29,13 @@ function trackRequest(j,packName){
   rows.unshift({token:j.token,reference:j.reference,packName,createdAt:now,lastSeenAt:now,lastNotifiedAt:now,status:'Nouvelle',updates:[]});
   setTrackedRequests(rows);
 }
-function clientSystemNotification(title,body){
-  if('Notification' in window&&Notification.permission==='granted'){try{new Notification(title,{body,icon:'./assets/icon-192.png'})}catch{}}
+async function clientSystemNotification(title,body){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  const options={body,icon:new URL('./assets/icon-192.png',location.href).href,badge:new URL('./assets/icon-192.png',location.href).href,tag:'jlg-client-update',data:{url:new URL('./index.html',location.href).href}};
+  try{
+    if('serviceWorker' in navigator){const reg=await navigator.serviceWorker.ready;await reg.showNotification(title,options);return}
+    new Notification(title,options);
+  }catch{}
 }
 async function enableClientNotifications(){
   if(!('Notification' in window))return showToast('Les notifications système ne sont pas disponibles sur cet appareil.',true);
