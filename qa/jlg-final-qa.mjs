@@ -204,14 +204,18 @@ const browser=await chromium.launch({headless:true});
  const page=await context.newPage();const errors=await watchErrors(page,'Studio mobile auth');
  await page.route(API+'**',async route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(fakeData)}));
  await page.goto(STUDIO,{waitUntil:'networkidle'});
- await check('Studio mobile authenticated renders all 10 nav actions',async()=>assert(await page.locator('[data-view]').count()===10,'nav count'));
+ await check('Studio mobile has fixed app navigation',async()=>{assert(await page.locator('.studioMobileNav').isVisible(),'mobile nav hidden');assert(await page.locator('[data-mobile-view]').count()===10,'mobile destinations');const b=await page.locator('.studioMobileNav').boundingBox();assert(b&&b.y+b.height<=846,'nav outside viewport')});
+ await check('Studio mobile hides desktop sidebar',async()=>assert(await page.locator('.studioSide').isHidden(),'desktop sidebar visible'));
  await check('Studio mobile dashboard no page overflow',async()=>{const v=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);assert(v[0]<=v[1]+2,v.join('/'))});
- await check('Studio mobile quotes view usable without page overflow',async()=>{await page.locator('[data-view=quotes]').click();const v=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);assert(v[0]<=v[1]+2,v.join('/'))});
- await check('Studio mobile key controls >=38px',async()=>{for(const sel of ['#refresh','#studioNotifToggle','[data-view=orders]']){const x=page.locator(sel);if(await x.isVisible()){const b=await x.boundingBox();assert(b?.height>=38,sel+' '+b?.height)}}});
+ await check('Studio mobile dashboard is readable without horizontal KPI carousel',async()=>{const m=page.locator('.metrics');const box=await m.boundingBox();assert(box&&box.width<=390,'metrics too wide');const overflow=await m.evaluate(e=>e.scrollWidth>e.clientWidth+2);assert(!overflow,'metrics scroll horizontally')});
+ await check('Studio mobile quick navigation changes view and returns to top',async()=>{await page.locator('[data-mobile-view=orders]').first().click();assert((await page.locator('.studioTop h1').innerText()).includes('Demandes'),'orders title');await page.evaluate(()=>window.scrollTo(0,500));await page.locator('[data-mobile-view=projects]').first().click();assert((await page.locator('.studioTop h1').innerText()).includes('Projets'),'projects title');assert(await page.evaluate(()=>window.scrollY)<10,'did not return to top')});
+ await check('Studio mobile More menu exposes secondary sections and install button',async()=>{await page.locator('#mobileMore').click();assert(await page.locator('#mobileMoreSheet').evaluate(e=>e.classList.contains('open')),'more not open');assert(await page.locator('.mobileInstallAction').isVisible(),'install hidden');for(const k of ['packs','clients','tasks','invoices','deliveries','settings'])assert(await page.locator('[data-mobile-view='+k+']').count()===1,'missing '+k);await page.locator('[data-mobile-view=invoices]').click();assert((await page.locator('.studioTop h1').innerText()).includes('Finance'),'finance title')});
+ await check('Studio mobile quotes view usable without page overflow',async()=>{await page.locator('[data-mobile-view=quotes]').first().click();const v=await page.evaluate(()=>[document.documentElement.scrollWidth,document.documentElement.clientWidth]);assert(v[0]<=v[1]+2,v.join('/'))});
+ await check('Studio mobile key controls >=40px',async()=>{for(const sel of ['#refresh','#studioNotifToggle','.studioMobileNav button']){const x=page.locator(sel).first();if(await x.isVisible()){const b=await x.boundingBox();assert(b?.height>=40,sel+' '+b?.height)}}});
+ await check('Studio mobile modals fit viewport',async()=>{await page.locator('[data-mobile-view=clients]').click();await page.locator('#createRecord').click();const m=page.locator('.adminModal');assert(await m.isVisible(),'modal hidden');const b=await m.boundingBox();assert(b&&b.width<=390&&b.height<=844,'modal '+JSON.stringify(b));await clearOverlays(page)});
  await check('Studio mobile authenticated no runtime errors',async()=>errors());
  await context.close();
 }
-
 
 
 // CLIENT PORTAL WITH MOCKED API
