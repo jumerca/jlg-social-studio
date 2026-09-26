@@ -524,3 +524,161 @@ input,textarea,select{font-size:14px!important;padding:12px 13px!important}
   .metric strong,.financeKpis strong{font-size:20px!important}
   .mobileMoreGrid{grid-template-columns:1fr 1fr}
 }
+
+
+/* ===== STUDIO V18 — TRUE MOBILE APP LAYOUT ===== */
+.sideInstall,.mobileInstallAction,.loginInstall{
+  border:1px solid #d9c493;background:#f2e7d0;color:#72531d;border-radius:11px;
+  min-height:42px;padding:9px 12px;font-weight:850
+}
+.installState{margin:6px 0 0;font-size:10px;line-height:1.35;color:#7d8a91}
+.sideFooter .sideInstall{width:100%;margin-bottom:4px}
+.studioMobileNav,.mobileMoreSheet{display:none}
+
+@media(max-width:760px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .studioBody{padding-bottom:calc(76px + env(safe-area-inset-bottom));background:#eef1f2}
+  .studioShell{display:block!important;min-height:100vh}
+  .studioSide{display:none!important}
+  .studioMain{min-width:0;width:100%}
+  .studioTop{
+    position:sticky!important;top:0!important;z-index:40!important;
+    min-height:68px!important;padding:10px 12px!important;
+    align-items:center!important;gap:8px!important;background:rgba(238,241,242,.96)!important;
+    backdrop-filter:blur(14px);border-bottom:1px solid #d8dfe2
+  }
+  .studioTopTitle{min-width:0;flex:1}
+  .studioTop p{font-size:8px!important;margin:0 0 2px!important;letter-spacing:.14em}
+  .studioTop h1{font-size:22px!important;line-height:1.05!important;margin:0!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .studioTopActions{display:flex!important;align-items:center;gap:6px!important;flex-wrap:nowrap!important}
+  .studioTopActions .primary{width:42px;min-width:42px;height:42px;padding:0!important;font-size:0!important;border-radius:12px}
+  .studioTopActions .primary:before{content:"+";font-size:24px;line-height:1;font-weight:500}
+  .studioTopActions #refresh{width:42px;min-width:42px;height:42px;padding:0!important;font-size:0!important;border-radius:12px}
+  .studioTopActions #refresh:before{content:"↻";font-size:21px}
+  .studioNotifToggle{width:42px;min-width:42px;height:42px!important}
+  #viewRoot{width:100%!important;max-width:none!important;margin:0!important;padding:12px 12px 18px!important}
+  .dashboardHero{padding:16px!important;border-radius:18px!important;gap:12px!important}
+  .dashboardHero h2{font-size:24px!important;line-height:1.08!important}
+  .dashboardHero p{font-size:12px!important}
+  .dashSignal{padding:12px!important}
+  .metrics{display:grid!important;grid-template-columns:1fr 1fr!important;overflow:visible!important;gap:8px!important;margin:10px 0!important;padding:0!important;scroll-snap-type:none!important}
+  .metric{min-width:0!important;padding:12px!important;border-radius:14px!important}
+  .metric strong{font-size:23px!important}
+  .metric span,.metric small{font-size:9px!important}
+  .dashGrid{grid-template-columns:1fr!important;gap:9px!important}
+  .dashPanel{padding:13px!important;border-radius:15px!important}
+  .dashPanel h3{font-size:18px!important}
+  .dashList>div{padding:9px!important}
+  .dashList span,.dashList b{font-size:10px!important}
+  .studioIntro{padding:14px!important;border-radius:15px!important;margin-bottom:11px!important;display:grid!important;gap:10px!important}
+  .studioIntro strong{font-size:19px!important}.studioIntro p{font-size:12px!important}
+  .requestIntroStats{width:100%}.requestIntroStats>span{flex:1}
+  .orders,.quoteList,.simpleList,.offerDirectory,.taskBoard{gap:8px!important}
+  .orderRow,.orderRowV2,.simpleList article,.quoteRow,.taskCard,.settingsGrid article{
+    grid-template-columns:1fr!important;padding:13px!important;border-radius:15px!important;gap:8px!important
+  }
+  .orderQuickActions,.listActions,.cardActions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;width:100%}
+  .orderQuickActions>*,
+  .listActions>*,
+  .cardActions>*{width:100%!important;min-height:42px!important;margin:0!important}
+  .quoteRow>.quoteAmount{text-align:left!important}
+  .quoteRow>.status{justify-self:start!important}
+  .financeKpis{grid-template-columns:1fr 1fr!important;gap:8px!important}
+  .financeKpis>div{padding:12px!important}
+  .taskBoard{grid-template-columns:1fr!important}
+  .taskBoard>section{min-width:0}
+  .settingsGrid{grid-template-columns:1fr!important}
+  .settingsWide{grid-column:auto!important}
+  .formGrid{grid-template-columns:1fr!important}
+  .formGrid .wide{grid-column:auto!important}
+  .quoteBuilderModal,.modal.adminModal{
+    width:calc(100vw - 10px)!important;max-width:none!important;max-height:calc(100dvh - 10px)!important;
+    margin:5px!important;padding:15px 12px 10px!important;border-radius:18px!important
+  }
+  .overlay{padding:0!important;align-items:flex-start!important}
+  .adminModalHead{padding-right:38px}
+  .adminModalHead h2{font-size:24px!important;line-height:1.1!important;margin-bottom:12px!important}
+  .modal .close{position:sticky;top:0;float:right;z-index:5}
+  .quoteSetup{padding:10px!important}.quoteWorkspace{gap:9px!important}
+  .quoteCatalog,.quoteCart{border-radius:12px!important}
+  .quoteItems{max-height:none!important}
+  .quoteItem{grid-template-columns:1fr 1fr!important}
+  .quoteItemTitle{grid-column:1/-1!important}
+  .dialogActions{
+    position:sticky!important;bottom:0!important;z-index:6!important;background:rgba(251,248,242,.97)!important;
+    margin:10px -4px -2px!important;padding:9px 4px calc(2px + env(safe-area-inset-bottom))!important;
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important
+  }
+  .dialogActions>*{min-height:44px!important;width:100%!important}
+  .offerMemo>summary{padding:12px!important;gap:8px!important}
+  .offerMemo>summary strong{font-size:18px!important}
+  .offerMemoMeta{display:flex!important;text-align:left!important;justify-content:space-between!important}
+  .offerMemoBody,.serviceDirectoryBody{grid-template-columns:1fr!important;padding:10px!important}
+  .serviceDirectory>summary{padding:13px!important;gap:8px!important}
+  .serviceDirectory>summary strong{font-size:17px!important}
+  .serviceDirectory>summary span{white-space:nowrap}
+  .requestHero{padding:14px!important;border-radius:15px!important}
+  .requestHero h3{font-size:20px!important}
+  .requestKpis{grid-template-columns:1fr 1fr!important}
+  .requestColumns,.requestScope,.scopeMeta,.briefFields,.requestBriefMain .briefFields{grid-template-columns:1fr!important}
+  .packEditGrid{max-height:none!important;overflow:visible!important;padding-right:0!important}
+
+  .studioMobileNav{
+    position:fixed;left:0;right:0;bottom:0;z-index:90;
+    display:grid;grid-template-columns:repeat(5,1fr);gap:2px;
+    min-height:64px;padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+    background:rgba(5,23,35,.98);border-top:1px solid rgba(224,189,114,.2);
+    box-shadow:0 -8px 28px rgba(5,23,35,.18);backdrop-filter:blur(16px)
+  }
+  .studioMobileNav button{
+    min-width:0;min-height:52px;border:0;border-radius:12px;background:transparent;color:#b9c6cd;
+    display:grid;place-items:center;align-content:center;gap:2px;padding:5px 2px
+  }
+  .studioMobileNav button>span{font-size:19px;line-height:1;font-weight:800}
+  .studioMobileNav button>small{font-size:9px;line-height:1.1;font-weight:800;white-space:nowrap}
+  .studioMobileNav button.active{background:#17394d;color:#f1d080}
+  .studioMobileNav button.active small{color:#fff}
+
+  .mobileMoreSheet{display:block;position:fixed;inset:0;z-index:120;pointer-events:none;visibility:hidden}
+  .mobileMoreSheet.open{pointer-events:auto;visibility:visible}
+  .mobileMoreBackdrop{position:absolute;inset:0;border:0;background:rgba(3,15,23,.48);opacity:0;transition:.18s}
+  .mobileMoreSheet.open .mobileMoreBackdrop{opacity:1}
+  .mobileMorePanel{
+    position:absolute;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));
+    max-height:min(78dvh,680px);overflow:auto;background:#fbf8f2;border:1px solid #d9d1c4;border-radius:22px;
+    padding:8px 12px 14px;box-shadow:0 22px 60px rgba(4,20,30,.28);
+    transform:translateY(calc(100% + 18px));transition:.2s ease
+  }
+  .mobileMoreSheet.open .mobileMorePanel{transform:translateY(0)}
+  .mobileMoreHandle{width:42px;height:4px;border-radius:99px;background:#cbd2d5;margin:2px auto 9px}
+  .mobileMoreHead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+  .mobileMoreHead>div{display:grid;gap:2px}.mobileMoreHead small{font-size:8px;letter-spacing:.13em;color:#8a6a31;font-weight:900}
+  .mobileMoreHead strong{font:500 22px Georgia,serif;color:#17364b}
+  #mobileMoreClose{width:42px;height:42px;border:0;border-radius:12px;background:#eef1f2;color:#17364b;font-size:24px}
+  .mobileMoreGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .mobileMoreGrid button{
+    min-height:54px;border:1px solid #dce2e4;background:#fff;border-radius:13px;padding:10px 12px;
+    display:flex;justify-content:space-between;align-items:center;text-align:left;font-weight:850;color:#17364b
+  }
+  .mobileMoreGrid button.active{border-color:#caa35a;background:#f4ead6}
+  .mobileMoreGrid button span{font-size:20px;color:#9b7330}
+  .mobileInstallAction{width:100%;margin-top:10px;min-height:46px}
+  .mobileInstallState{text-align:center;margin:7px 4px}
+  .mobileMoreLinks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .mobileMoreLinks a,.mobileMoreLinks button{
+    min-height:42px;border:1px solid #dce2e4;border-radius:11px;background:#fff;color:#52636d;
+    display:flex;align-items:center;justify-content:center;text-decoration:none;font-weight:800;font-size:11px
+  }
+
+  #studioToast{bottom:calc(82px + env(safe-area-inset-bottom))!important;left:10px!important;right:10px!important;max-width:none!important}
+  .loginPage{padding:14px!important;min-height:100dvh!important}
+  .loginCard{width:100%!important;max-width:430px!important;padding:22px 18px!important}
+  .loginInstall{margin-top:8px}
+}
+
+@media(max-width:420px){
+  .metrics{grid-template-columns:1fr 1fr!important}
+  .metric strong{font-size:21px!important}
+  .financeKpis{grid-template-columns:1fr 1fr!important}
+  .mobileMoreGrid{grid-template-columns:1fr 1fr}
+}
