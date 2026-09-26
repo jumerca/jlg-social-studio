@@ -373,3 +373,154 @@ input,textarea,select{font-size:14px!important;padding:12px 13px!important}
   .orderOpen p,.orderOpen small{font-size:12px!important}
   .offerMemo>summary small{font-size:11px!important}
 }
+
+
+/* ===== STUDIO V18 — MOBILE APP SHELL / SAMSUNG-FIRST ===== */
+.sideInstall{width:100%;min-height:40px;border:1px solid rgba(224,189,114,.38);background:rgba(224,189,114,.12);color:#ead49a;border-radius:10px;font-weight:850}
+.installState{font-size:9px;line-height:1.35;color:#8a979d;margin:6px 0 0;text-align:center}
+.sideFooter .installState{color:#91a5b1}
+.loginInstall{margin-top:9px}
+.loginCard .installState{min-height:13px}
+.studioMobileNav,.mobileMoreSheet{display:none}
+
+@media(max-width:760px){
+  html,body{max-width:100%;overflow-x:hidden}
+  body.studioBody{padding-bottom:calc(72px + env(safe-area-inset-bottom));background:#edf1f2}
+  .studioShell{display:block!important;min-width:0!important}
+  .studioSide{display:none!important}
+  .studioMain{width:100%!important;min-width:0!important;padding:0!important}
+
+  .studioTop{
+    position:sticky!important;top:0!important;z-index:58!important;
+    min-height:64px!important;padding:8px 10px!important;
+    display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important;
+    background:rgba(237,241,242,.96)!important;border-bottom:1px solid #d9e0e2!important;
+    backdrop-filter:blur(14px)
+  }
+  .studioTopTitle{min-width:0}
+  .studioTopTitle p{margin:0 0 1px!important;font-size:8px!important;letter-spacing:.12em!important}
+  .studioTop h1{font-size:21px!important;line-height:1.08!important;margin:0!important;white-space:normal!important;overflow-wrap:anywhere}
+  .studioTopActions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;flex-wrap:nowrap!important}
+  .studioTopActions>*{min-height:40px!important;height:40px!important;padding:7px 9px!important;font-size:11px!important;border-radius:10px!important}
+  #createRecord{max-width:106px!important;white-space:nowrap!important}
+  #refresh{width:40px!important;min-width:40px!important;padding:0!important;font-size:0!important}
+  #refresh:after{content:"↻";font-size:21px;line-height:1}
+  .studioNotifToggle{width:40px!important;min-width:40px!important;height:40px!important}
+
+  #viewRoot{width:100%!important;max-width:none!important;margin:0!important;padding:10px 10px 18px!important}
+  .dashboardHero{grid-template-columns:1fr!important;gap:10px!important;border-radius:16px!important;padding:15px!important}
+  .dashboardHero h2{font-size:23px!important;line-height:1.08!important;margin:5px 0 7px!important}
+  .dashboardHero p{font-size:12px!important}
+  .dashSignal{padding:11px!important;border-radius:12px!important}
+  .dashSignal strong{font-size:25px!important}
+
+  .metrics{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;overflow:visible!important;padding:0!important;margin:9px 0!important;scroll-snap-type:none!important}
+  .metric{min-width:0!important;padding:11px!important;border-radius:13px!important}
+  .metric span,.metric small{font-size:9px!important}
+  .metric strong{font-size:22px!important;margin:3px 0!important}
+  .dashGrid{grid-template-columns:1fr!important;gap:8px!important}
+  .dashPanel{padding:12px!important;border-radius:14px!important}
+  .dashPanel h3{font-size:17px!important;margin-bottom:7px!important}
+  .dashList{gap:5px!important}
+  .dashList>div{padding:9px!important;gap:7px!important}
+  .dashList strong{font-size:12px!important}.dashList span,.dashList b{font-size:10px!important}
+
+  .studioIntro{display:grid!important;grid-template-columns:1fr!important;gap:9px!important;align-items:start!important;padding:14px!important;border-radius:14px!important;margin-bottom:10px!important}
+  .studioIntro strong{font-size:19px!important}.studioIntro p{font-size:11px!important}
+  .requestIntroStats{width:100%!important}.requestIntroStats>span{flex:1!important;min-width:0!important}
+
+  .orders,.simpleList,.quoteList,.offerDirectory{gap:7px!important}
+  .orderRow,.orderRowV2,.simpleList article,.quoteRow{grid-template-columns:1fr!important;gap:8px!important;padding:12px!important;border-radius:14px!important}
+  .orderRowV2>.briefScore{display:grid!important;grid-template-columns:auto 1fr;gap:8px;align-items:center}
+  .orderRowV2>.briefScore i{margin:0!important}
+  .orderOpen p{white-space:normal!important;display:-webkit-box!important;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden!important}
+  .simpleList article>span{overflow-wrap:anywhere}
+  .status{justify-self:start!important}
+  .listActions,.cardActions,.orderQuickActions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;width:100%!important;margin-top:4px!important}
+  .listActions>*,.cardActions>*,.orderQuickActions>*{width:100%!important;min-height:40px!important}
+  .taskBoard,.settingsGrid,.adminPacks{grid-template-columns:1fr!important;gap:8px!important}
+  .taskBoard>section{min-width:0!important}
+  .taskCard{padding:12px!important}
+  .financeKpis{grid-template-columns:1fr 1fr!important;gap:7px!important}
+  .financeKpis>div{padding:11px!important}.financeKpis strong{font-size:21px!important}
+
+  .offerMemo>summary{grid-template-columns:1fr!important;gap:7px!important;padding:12px!important}
+  .offerMemo>summary strong{font-size:18px!important}
+  .offerMemoMeta{text-align:left!important;display:flex!important;gap:10px!important;align-items:center!important}
+  .offerMemoBody,.serviceDirectoryBody{grid-template-columns:1fr!important}
+  .offerFilters{justify-content:flex-start!important;flex-wrap:nowrap!important;overflow-x:auto!important;padding-bottom:4px!important;scrollbar-width:none}
+  .offerFilters::-webkit-scrollbar{display:none}
+  .offerFilters button{flex:0 0 auto}
+
+  .quoteRow>.quoteAmount{grid-column:auto!important;text-align:left!important}
+  .quoteRow>.listActions{grid-column:auto!important}
+  .quoteBuilderModal{width:calc(100vw - 8px)!important;max-height:calc(100dvh - 8px)!important}
+  .quoteSetupGrid{grid-template-columns:1fr!important}
+  .quoteSetupGrid .wide{grid-column:auto!important}
+  .quoteWorkspace{grid-template-columns:1fr!important;min-height:0!important}
+  .quoteCatalog,.quoteCart{border-radius:12px!important}
+  .quoteCatalog{padding:9px!important}
+  .servicePicker{max-height:220px!important}
+  .quoteItems{max-height:none!important}
+  .quoteItem{grid-template-columns:1fr 1fr!important;padding:9px!important}
+  .quoteItemTitle{grid-column:1/-1!important}
+  .quoteTotals{width:100%!important}
+  .quotePackAdder{grid-template-columns:1fr!important}
+  .quotePackAdder button{width:100%}
+
+  .requestHero{grid-template-columns:1fr!important;padding:14px!important;border-radius:14px!important}
+  .requestKpis{grid-template-columns:1fr 1fr!important;gap:6px!important}
+  .requestColumns,.requestScope,.briefFields,.requestBriefMain .briefFields,.scopeMeta{grid-template-columns:1fr!important}
+  .requestSection,.requestScope>div,.nextActions{padding:12px!important}
+
+  .formGrid{grid-template-columns:1fr!important;gap:9px!important}
+  .formGrid .wide{grid-column:auto!important}
+  .settingsWide{grid-column:auto!important}
+  .settingsGrid article{padding:13px!important}
+  .settingsGrid h3{font-size:18px!important}
+  input,textarea,select{font-size:16px!important;max-width:100%!important}
+  textarea{line-height:1.45}
+
+  .overlay{padding:4px!important;place-items:end center!important}
+  .modal.adminModal{width:calc(100vw - 8px)!important;max-height:calc(100dvh - 8px)!important;padding:15px!important;border-radius:18px 18px 8px 8px!important;overflow:auto!important}
+  .adminModalHead h2{font-size:23px!important;margin:0 36px 12px 0!important;text-align:left!important}
+  .modal .close{position:sticky!important;float:right!important;top:0!important}
+  .dialogActions{position:sticky!important;bottom:0!important;z-index:3!important;background:#fbf8f2!important;padding:9px 0 calc(4px + env(safe-area-inset-bottom))!important;display:grid!important;grid-template-columns:1fr!important}
+  .dialogActions>*{width:100%!important;min-height:42px!important}
+
+  .studioMobileNav{
+    display:grid!important;position:fixed;left:0;right:0;bottom:0;z-index:90;
+    grid-template-columns:repeat(5,1fr);height:calc(64px + env(safe-area-inset-bottom));
+    padding:5px 6px calc(5px + env(safe-area-inset-bottom));
+    background:rgba(5,20,31,.98);border-top:1px solid rgba(224,189,114,.22);
+    box-shadow:0 -10px 28px rgba(5,20,31,.16);backdrop-filter:blur(15px)
+  }
+  .studioMobileNav button{border:0;background:transparent;color:#aebcc5;border-radius:10px;display:grid;place-items:center;align-content:center;gap:2px;min-width:0;padding:4px 2px}
+  .studioMobileNav button span{font-size:18px;line-height:1;font-weight:900}
+  .studioMobileNav button small{font-size:9px;white-space:nowrap;font-weight:800}
+  .studioMobileNav button.active{background:rgba(224,189,114,.14);color:#f0d28c}
+
+  .mobileMoreSheet{position:fixed;inset:0;z-index:140}
+  .mobileMoreSheet.open{display:block!important}
+  .mobileMoreBackdrop{position:absolute;inset:0;border:0;background:rgba(3,14,22,.56);backdrop-filter:blur(3px)}
+  .mobileMorePanel{position:absolute;left:7px;right:7px;bottom:calc(7px + env(safe-area-inset-bottom));max-height:min(74dvh,620px);overflow:auto;background:#fbf9f4;border-radius:20px;padding:10px 12px 14px;box-shadow:0 28px 80px rgba(0,0,0,.32)}
+  .mobileMoreHandle{width:46px;height:4px;border-radius:99px;background:#d1d7d9;margin:0 auto 9px}
+  .mobileMoreHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .mobileMoreHead small,.mobileMoreHead strong{display:block}.mobileMoreHead small{font-size:8px;letter-spacing:.13em;color:#9a702a;font-weight:900}.mobileMoreHead strong{font:500 20px Georgia,serif;margin-top:2px}
+  #mobileMoreClose{width:38px;height:38px;border:0;border-radius:10px;background:#edf1f2;color:#17364b;font-size:24px}
+  .mobileMoreGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .mobileMoreGrid button{min-height:48px;border:1px solid #dce2e4;border-radius:12px;background:#fff;color:#17364b;padding:10px 11px;display:flex;align-items:center;justify-content:space-between;gap:6px;text-align:left;font-size:12px;font-weight:850}
+  .mobileMoreGrid button.active{border-color:#c9a45d;background:#f5ecd9}
+  .mobileInstallAction{width:100%;min-height:46px;margin-top:10px;border:0;border-radius:12px;background:#d8ad56;color:#102738;font-weight:900}
+  .mobileInstallState{margin:6px 4px 0!important}
+  .mobileMoreLinks{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+  .mobileMoreLinks a,.mobileMoreLinks button{min-height:42px;border:1px solid #dce2e4;border-radius:11px;background:#fff;color:#566871;display:grid;place-items:center;text-decoration:none;font-size:11px;font-weight:800}
+}
+
+@media(max-width:400px){
+  .studioTop h1{font-size:19px!important}
+  #createRecord{max-width:92px!important;padding-inline:7px!important}
+  .metrics,.financeKpis{grid-template-columns:1fr 1fr!important}
+  .metric strong,.financeKpis strong{font-size:20px!important}
+  .mobileMoreGrid{grid-template-columns:1fr 1fr}
+}
